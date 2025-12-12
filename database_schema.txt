@@ -1,0 +1,211 @@
+-- Base de Datos para Sistema de Gestión de Atención Hospitalaria
+-- SQL Server Management Studio 2022
+
+-- Crear la base de datos
+CREATE DATABASE GestionAtencionHospital;
+GO
+
+USE GestionAtencionHospital;
+GO
+
+-- Tabla Usuario
+-- Roles: 'Administrador', 'Recepcionista', 'Medico'
+CREATE TABLE Usuario (
+    UsuarioID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(100) UNIQUE NOT NULL,
+    Password NVARCHAR(255) NOT NULL,
+    Rol NVARCHAR(20) NOT NULL CHECK (Rol IN ('Administrador', 'Recepcionista', 'Medico'))
+);
+
+-- Tabla Paciente
+CREATE TABLE Paciente (
+    PacienteID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(100) NOT NULL,
+    Apellido NVARCHAR(100) NOT NULL,
+    FechaNacimiento DATE NOT NULL,
+    Direccion NVARCHAR(255),
+    Telefono NVARCHAR(20),
+    Email NVARCHAR(100),
+    Expediente NVARCHAR(20) UNIQUE, -- EXP-0000-0000
+    Cedula NVARCHAR(20),
+    Sexo NVARCHAR(10),
+    MotivoConsulta NVARCHAR(500),
+    Sintomas NVARCHAR(500),
+    TiempoSintomas NVARCHAR(100),
+    Alergias NVARCHAR(500),
+    MedicamentosActuales NVARCHAR(500),
+    Urgencia INT DEFAULT 3, -- 1: Alta, 2: Media, 3: Baja
+    Atendido BIT DEFAULT 0,
+    FechaRegistro DATETIME DEFAULT GETDATE(),
+    FechaAtencion DATETIME NULL,
+    UsuarioRegistroID INT,
+    FOREIGN KEY (UsuarioRegistroID) REFERENCES Usuario(UsuarioID)
+);
+
+-- Tabla Medico (especialización de Usuario)
+CREATE TABLE Medico (
+    MedicoID INT PRIMARY KEY,
+    Especialidad NVARCHAR(100) NOT NULL,
+    FOREIGN KEY (MedicoID) REFERENCES Usuario(UsuarioID)
+);
+
+-- Tabla Consulta
+CREATE TABLE Consulta (
+    ConsultaID INT IDENTITY(1,1) PRIMARY KEY,
+    PacienteID INT NOT NULL,
+    MedicoID INT NOT NULL,
+    Fecha DATE NOT NULL,
+    Hora TIME NOT NULL,
+    Tipo NVARCHAR(20) NOT NULL CHECK (Tipo IN ('Cita', 'Urgencia')),
+    Prioridad INT CHECK (Prioridad BETWEEN 1 AND 5), -- 1: Baja, 5: Alta
+    FOREIGN KEY (PacienteID) REFERENCES Paciente(PacienteID),
+    FOREIGN KEY (MedicoID) REFERENCES Medico(MedicoID)
+);
+
+-- Tabla HistorialClinico
+CREATE TABLE HistorialClinico (
+    HistorialID INT IDENTITY(1,1) PRIMARY KEY,
+    ConsultaID INT NOT NULL,
+    Diagnostico NVARCHAR(500) NOT NULL,
+    Causa NVARCHAR(500),
+    Tratamiento NVARCHAR(500),
+    Fecha DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (ConsultaID) REFERENCES Consulta(ConsultaID)
+);
+
+-- Normalización aplicada:
+-- 1FN: Todos los atributos son atómicos.
+-- 2FN: No hay dependencias parciales; claves primarias son simples o compuestas correctamente.
+-- 3FN: No hay dependencias transitivas; atributos dependen solo de la clave primaria.
+
+-- Procedimiento Almacenado 1: Registrar Paciente Nuevo
+CREATE PROCEDURE RegistrarPaciente
+    @Nombre NVARCHAR(100),
+    @Apellido NVARCHAR(100),
+    @FechaNacimiento DATE,
+    @Direccion NVARCHAR(255),
+    @Telefono NVARCHAR(20),
+    @Email NVARCHAR(100),
+    @UsuarioRegistroID INT
+AS
+BEGIN
+    INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID)
+    VALUES (@Nombre, @Apellido, @FechaNacimiento, @Direccion, @Telefono, @Email, @UsuarioRegistroID);
+END;
+GO
+
+-- Procedimiento Almacenado 2: Asignar Consulta
+CREATE PROCEDURE AsignarConsulta
+    @PacienteID INT,
+    @MedicoID INT,
+    @Fecha DATE,
+    @Hora TIME,
+    @Tipo NVARCHAR(20),
+    @Prioridad INT
+AS
+BEGIN
+    INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad)
+    VALUES (@PacienteID, @MedicoID, @Fecha, @Hora, @Tipo, @Prioridad);
+END;
+GO
+
+-- Carga de Datos (Ejemplos para al menos 50 registros total)
+-- Usuarios (10 registros)
+INSERT INTO Usuario (Nombre, Email, Password, Rol) VALUES ('Admin1', 'admin1@hospital.com', 'password123', 'Administrador');
+INSERT INTO Usuario (Nombre, Email, Password, Rol) VALUES ('Recepcionista1', 'rec1@hospital.com', 'password123', 'Recepcionista');
+INSERT INTO Usuario (Nombre, Email, Password, Rol) VALUES ('Medico1', 'med1@hospital.com', 'password123', 'Medico');
+INSERT INTO Usuario (Nombre, Email, Password, Rol) VALUES ('Medico2', 'med2@hospital.com', 'password123', 'Medico');
+INSERT INTO Usuario (Nombre, Email, Password, Rol) VALUES ('Recepcionista2', 'rec2@hospital.com', 'password123', 'Recepcionista');
+INSERT INTO Usuario (Nombre, Email, Password, Rol) VALUES ('Admin2', 'admin2@hospital.com', 'password123', 'Administrador');
+INSERT INTO Usuario (Nombre, Email, Password, Rol) VALUES ('Medico3', 'med3@hospital.com', 'password123', 'Medico');
+INSERT INTO Usuario (Nombre, Email, Password, Rol) VALUES ('Recepcionista3', 'rec3@hospital.com', 'password123', 'Recepcionista');
+INSERT INTO Usuario (Nombre, Email, Password, Rol) VALUES ('Medico4', 'med4@hospital.com', 'password123', 'Medico');
+INSERT INTO Usuario (Nombre, Email, Password, Rol) VALUES ('Medico5', 'med5@hospital.com', 'password123', 'Medico');
+
+-- Medicos (5 registros, correspondientes a usuarios Medico)
+INSERT INTO Medico (MedicoID, Especialidad) VALUES (3, 'Cardiología');
+INSERT INTO Medico (MedicoID, Especialidad) VALUES (4, 'Pediatría');
+INSERT INTO Medico (MedicoID, Especialidad) VALUES (7, 'Neurología');
+INSERT INTO Medico (MedicoID, Especialidad) VALUES (9, 'Dermatología');
+INSERT INTO Medico (MedicoID, Especialidad) VALUES (10, 'Ginecología');
+
+-- Pacientes (20 registros)
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Juan', 'Pérez', '1980-05-15', 'Calle 1, Ciudad', '123456789', 'juan@email.com', 2);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('María', 'Gómez', '1990-03-20', 'Calle 2, Ciudad', '987654321', 'maria@email.com', 2);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Carlos', 'López', '1975-12-10', 'Calle 3, Ciudad', '555666777', 'carlos@email.com', 5);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Ana', 'Martínez', '1985-07-25', 'Calle 4, Ciudad', '111222333', 'ana@email.com', 5);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Luis', 'Hernández', '1995-01-30', 'Calle 5, Ciudad', '444555666', 'luis@email.com', 8);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Sofia', 'Ramírez', '1982-09-12', 'Calle 6, Ciudad', '777888999', 'sofia@email.com', 8);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Miguel', 'Torres', '1970-11-05', 'Calle 7, Ciudad', '000111222', 'miguel@email.com', 2);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Laura', 'Flores', '1992-04-18', 'Calle 8, Ciudad', '333444555', 'laura@email.com', 5);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Pedro', 'Vázquez', '1988-06-22', 'Calle 9, Ciudad', '666777888', 'pedro@email.com', 8);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Elena', 'Morales', '1978-08-14', 'Calle 10, Ciudad', '999000111', 'elena@email.com', 2);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Diego', 'Ortiz', '1993-02-28', 'Calle 11, Ciudad', '222333444', 'diego@email.com', 5);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Carmen', 'Delgado', '1987-10-09', 'Calle 12, Ciudad', '555666777', 'carmen@email.com', 8);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Roberto', 'Castro', '1976-12-03', 'Calle 13, Ciudad', '888999000', 'roberto@email.com', 2);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Isabel', 'Ruiz', '1991-05-17', 'Calle 14, Ciudad', '111222333', 'isabel@email.com', 5);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Fernando', 'Jiménez', '1984-07-21', 'Calle 15, Ciudad', '444555666', 'fernando@email.com', 8);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Patricia', 'Mendoza', '1979-09-25', 'Calle 16, Ciudad', '777888999', 'patricia@email.com', 2);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Antonio', 'Silva', '1994-03-11', 'Calle 17, Ciudad', '000111222', 'antonio@email.com', 5);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Rosa', 'Ramos', '1981-11-07', 'Calle 18, Ciudad', '333444555', 'rosa@email.com', 8);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Javier', 'Fernández', '1973-01-19', 'Calle 19, Ciudad', '666777888', 'javier@email.com', 2);
+INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, UsuarioRegistroID) VALUES ('Teresa', 'Sánchez', '1989-04-13', 'Calle 20, Ciudad', '999000111', 'teresa@email.com', 5);
+
+-- Consultas (15 registros)
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (1, 3, '2025-12-12', '09:00', 'Cita', 3);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (2, 4, '2025-12-12', '10:00', 'Urgencia', 5);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (3, 7, '2025-12-13', '11:00', 'Cita', 2);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (4, 9, '2025-12-13', '12:00', 'Urgencia', 4);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (5, 10, '2025-12-14', '13:00', 'Cita', 1);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (6, 3, '2025-12-14', '14:00', 'Urgencia', 5);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (7, 4, '2025-12-15', '15:00', 'Cita', 3);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (8, 7, '2025-12-15', '16:00', 'Urgencia', 4);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (9, 9, '2025-12-16', '17:00', 'Cita', 2);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (10, 10, '2025-12-16', '18:00', 'Urgencia', 5);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (11, 3, '2025-12-17', '09:00', 'Cita', 1);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (12, 4, '2025-12-17', '10:00', 'Urgencia', 3);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (13, 7, '2025-12-18', '11:00', 'Cita', 4);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (14, 9, '2025-12-18', '12:00', 'Urgencia', 5);
+INSERT INTO Consulta (PacienteID, MedicoID, Fecha, Hora, Tipo, Prioridad) VALUES (15, 10, '2025-12-19', '13:00', 'Cita', 2);
+
+-- HistorialClinico (10 registros, correspondientes a algunas consultas)
+INSERT INTO HistorialClinico (ConsultaID, Diagnostico, Causa, Tratamiento) VALUES (1, 'Hipertensión', 'Estrés', 'Medicamentos antihipertensivos');
+INSERT INTO HistorialClinico (ConsultaID, Diagnostico, Causa, Tratamiento) VALUES (2, 'Fractura', 'Accidente', 'Yeso y reposo');
+INSERT INTO HistorialClinico (ConsultaID, Diagnostico, Causa, Tratamiento) VALUES (3, 'Gripe', 'Virus', 'Antibióticos y descanso');
+INSERT INTO HistorialClinico (ConsultaID, Diagnostico, Causa, Tratamiento) VALUES (4, 'Dermatitis', 'Alergia', 'Crema tópica');
+INSERT INTO HistorialClinico (ConsultaID, Diagnostico, Causa, Tratamiento) VALUES (5, 'Chequeo general', 'Rutina', 'Ninguno');
+INSERT INTO HistorialClinico (ConsultaID, Diagnostico, Causa, Tratamiento) VALUES (6, 'Apendicitis', 'Inflamación', 'Cirugía');
+INSERT INTO HistorialClinico (ConsultaID, Diagnostico, Causa, Tratamiento) VALUES (7, 'Asma', 'Alergia', 'Inhalador');
+INSERT INTO HistorialClinico (ConsultaID, Diagnostico, Causa, Tratamiento) VALUES (8, 'Migraña', 'Estrés', 'Analgésicos');
+INSERT INTO HistorialClinico (ConsultaID, Diagnostico, Causa, Tratamiento) VALUES (9, 'Diabetes', 'Genética', 'Insulina');
+INSERT INTO HistorialClinico (ConsultaID, Diagnostico, Causa, Tratamiento) VALUES (10, 'Bronquitis', 'Infección', 'Antibióticos');
+GO
+-- 1. JOIN: Pacientes con sus consultas y médicos asignados
+SELECT P.Nombre + ' ' + P.Apellido AS Paciente, U.Nombre AS Medico, C.Fecha, C.Tipo
+FROM Paciente P
+JOIN Consulta C ON P.PacienteID = C.PacienteID
+JOIN Medico M ON C.MedicoID = M.MedicoID
+JOIN Usuario U ON M.MedicoID = U.UsuarioID;
+
+-- 2. WHERE: Consultas de urgencia con prioridad alta
+SELECT * FROM Consulta WHERE Tipo = 'Urgencia' AND Prioridad >= 4;
+
+-- 3. GROUP BY: Número de consultas por médico
+SELECT U.Nombre, COUNT(C.ConsultaID) AS NumeroConsultas
+FROM Usuario U
+JOIN Medico M ON U.UsuarioID = M.MedicoID
+JOIN Consulta C ON M.MedicoID = C.MedicoID
+GROUP BY U.Nombre;
+
+-- 4. JOIN y WHERE: Historial clínico de pacientes con diagnóstico específico
+SELECT P.Nombre + ' ' + P.Apellido AS Paciente, H.Diagnostico, H.Tratamiento
+FROM Paciente P
+JOIN Consulta C ON P.PacienteID = C.PacienteID
+JOIN HistorialClinico H ON C.ConsultaID = H.ConsultaID
+WHERE H.Diagnostico LIKE '%Hipertensión%';
+
+-- 5. GROUP BY y agregación: Promedio de prioridad por tipo de consulta
+SELECT Tipo, AVG(Prioridad) AS PromedioPrioridad
+FROM Consulta
+GROUP BY Tipo;

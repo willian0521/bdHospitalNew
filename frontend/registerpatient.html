@@ -588,11 +588,13 @@
         // Variables globales
         let expedienteCounter = 1;
 
-        // Cargar contador desde localStorage
-        function cargarContadorExpediente() {
-            const pacientes = JSON.parse(localStorage.getItem('pacientes') || '[]');
-            if (pacientes.length > 0) {
-                expedienteCounter = pacientes.length + 1;
+        async function cargarContadorExpediente() {
+            try {
+                const response = await fetch('http://localhost:5000/api/pacientes/expediente/contador');
+                const data = await response.json();
+                expedienteCounter = (data.total || 0) + 1;
+            } catch (e) {
+                expedienteCounter = 1;
             }
         }
 
@@ -692,61 +694,69 @@
             return isValid;
         }
 
-        function registrarPaciente() {
-            const formData = new FormData(document.getElementById('patientForm'));
+        async function registrarPaciente() {
+            const form = document.getElementById('patientForm');
+            const formData = new FormData(form);
             const expediente = generarExpediente();
-            
+
+            // Mapeo prioridad (texto) a urgencia (número)
+            const prioridadTexto = formData.get('prioridad');
+            let urgencia = 3;
+            if (prioridadTexto === 'alta') urgencia = 1;
+            else if (prioridadTexto === 'media') urgencia = 2;
+
+            // Formateo de campos especiales
+            const cedula = formData.get('cedula') || "";
+            const telefono = formData.get('telefono') || "";
+            const sexo = formData.get('sexo') || "M"; // Por defecto "M"
+            const email = formData.get('email') || "";
+            const fechaNacimiento = formData.get('fechaNacimiento') || "";
+            const edad = Number(formData.get('edad')) || null;
+
             const paciente = {
+                nombre: (formData.get('nombres') || "") + " " + (formData.get('apellidos') || ""),
+                edad: edad,
+                fechaNacimiento: fechaNacimiento,
+                cedula: cedula,
+                sexo: sexo,
+                telefono: telefono,
+                email: email,
+                direccion: formData.get('direccion') || "",
+                motivoConsulta: formData.get('motivoConsulta') || "",
+                sintomas: formData.get('sintomas') || "",
+                tiempoSintomas: formData.get('tiempoSintomas') || "",
+                alergias: formData.get('alergias') || "",
+                medicamentosActuales: formData.get('medicamentosActuales') || "",
+                urgencia: urgencia,
                 expediente: expediente,
+                atendido: false,
                 fechaRegistro: new Date().toISOString(),
-                nombres: formData.get('nombres'),
-                apellidos: formData.get('apellidos'),
-                cedula: formData.get('cedula'),
-                fechaNacimiento: formData.get('fechaNacimiento'),
-                edad: formData.get('edad'),
-                sexo: formData.get('sexo'),
-                telefono: formData.get('telefono'),
-                email: formData.get('email'),
-                direccion: formData.get('direccion'),
-                motivoConsulta: formData.get('motivoConsulta'),
-                sintomas: formData.get('sintomas'),
-                tiempoSintomas: formData.get('tiempoSintomas'),
-                alergias: formData.get('alergias'),
-                medicamentosActuales: formData.get('medicamentosActuales'),
-                prioridad: formData.get('prioridad'),
-                estado: 'en_espera',
-                horaRegistro: new Date().toLocaleTimeString()
+                fechaAtencion: null
             };
 
-            // Guardar en localStorage
-            const pacientes = JSON.parse(localStorage.getItem('pacientes') || '[]');
-            pacientes.push(paciente);
-            localStorage.setItem('pacientes', JSON.stringify(pacientes));
-
-            // Incrementar contador
-            expedienteCounter++;
-            
-            // Mostrar modal de éxito
-            document.getElementById('successExpediente').textContent = expediente;
-            document.getElementById('successModal').style.display = 'flex';
-            
-            // Actualizar contador en el sistema principal
-            actualizarContadoresEnMenu();
+            // ENVÍA AL BACKEND/FIREBASE
+            try {
+                const response = await fetch('http://localhost:5000/api/pacientes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paciente)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    expedienteCounter++;
+                    document.getElementById('successExpediente').textContent = expediente;
+                    document.getElementById('successModal').style.display = 'flex';
+                    actualizarContadoresEnMenu();
+                } else {
+                    showNotification(data.error || 'Error al registrar paciente', 'error');
+                }
+            } catch (err) {
+                showNotification('No se pudo conectar con el servidor', 'error');
+            }
         }
 
         function actualizarContadoresEnMenu() {
-            // Intentar comunicarse con la ventana padre si existe
-            if (window.opener && !window.opener.closed) {
-                try {
-                    // Enviar mensaje a la ventana padre para actualizar contadores
-                    window.opener.postMessage({
-                        type: 'patient_registered',
-                        data: { action: 'update_counters' }
-                    }, '*');
-                } catch (e) {
-                    console.log('No se pudo comunicar con la ventana padre');
-                }
-            }
+            window.location.href = 'index.html';
         }
 
         function limpiarFormulario() {
@@ -794,12 +804,12 @@
         }
 
         function volverMenu() {
-            goBack();
+            window.location.href = 'index.html';
         }
 
         // Inicializar
-        document.addEventListener('DOMContentLoaded', function() {
-            cargarContadorExpediente();
+        document.addEventListener('DOMContentLoaded', async function() {
+            await cargarContadorExpediente();
             document.getElementById('expedienteNumber').textContent = generarExpediente();
             showNotification('Formulario de registro listo', 'success');
         });
