@@ -3,50 +3,486 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuario - Gestión Hospitalaria</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Registro - Sistema Hospitalario</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .registro-container {
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .registro-left {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .registro-left::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .registro-left::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 250px;
+            height: 250px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hospital-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .registro-left h1 {
+            font-size: 2em;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .registro-left p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+        }
+
+        .registro-right {
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .registro-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .registro-header h2 {
+            font-size: 2em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .registro-header p {
+            color: #7f8c8d;
+            font-size: 1em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            color: #34495e;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e8f4fd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        select.form-input {
+            padding-left: 45px;
+            cursor: pointer;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #7f8c8d;
+            font-size: 1.2em;
+            transition: color 0.3s ease;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .password-toggle:hover {
+            color: #3498db;
+        }
+
+        .registro-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+
+        .registro-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .registro-button:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: #fee;
+            color: #e74c3c;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            border-left: 4px solid #e74c3c;
+            display: none;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .success-message {
+            background: #d5f4e6;
+            color: #27ae60;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            border-left: 4px solid #27ae60;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .login-link {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.95em;
+            margin-top: 20px;
+        }
+
+        .login-link a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .registro-container {
+                grid-template-columns: 1fr;
+                height: auto;
+                min-height: 100vh;
+                border-radius: 0;
+            }
+
+            .registro-left {
+                padding: 40px 30px;
+                min-height: 30vh;
+            }
+
+            .registro-left h1 {
+                font-size: 1.5em;
+            }
+
+            .registro-right {
+                padding: 40px 30px;
+                max-height: 70vh;
+            }
+
+            .registro-header h2 {
+                font-size: 1.6em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+
+            .registro-container {
+                border-radius: 0;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .registro-left,
+            .registro-right {
+                padding: 30px 20px;
+            }
+
+            .hospital-icon {
+                font-size: 4em;
+            }
+
+            .registro-right {
+                max-height: none;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="registro-container">
-        <h2>Registrar Nuevo Usuario</h2>
-        <form id="registroForm">
-            <div class="form-group">
-                <label for="nombre">Nombre:</label>
-                <input type="text" id="nombre" required>
+        <div class="registro-left">
+            <div class="hospital-icon">🏥</div>
+            <h1>Sistema de Gestión Hospitalaria</h1>
+            <p>Únete a nuestra plataforma y colabora en la administración de pacientes y servicios médicos</p>
+        </div>
+
+        <div class="registro-right">
+            <div class="registro-header">
+                <h2>Registrar Usuario</h2>
+                <p>Crea una nueva cuenta en el sistema</p>
             </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" required>
+
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+
+            <form id="registroForm">
+                <div class="form-group">
+                    <label for="nombre">Nombre Completo</label>
+                    <div class="input-container">
+                        <input type="text" id="nombre" class="form-input" placeholder="Ingrese su nombre" required>
+                        <span class="input-icon">👤</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-container">
+                        <input type="email" id="email" class="form-input" placeholder="Ingrese su email" required>
+                        <span class="input-icon">✉️</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <div class="input-container">
+                        <input type="password" id="password" class="form-input" placeholder="Ingrese su contraseña" required>
+                        <span class="input-icon">🔒</span>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Contraseña</label>
+                    <div class="input-container">
+                        <input type="password" id="confirmPassword" class="form-input" placeholder="Confirme su contraseña" required>
+                        <span class="input-icon">🔒</span>
+                        <button type="button" class="password-toggle" onclick="toggleConfirmPassword()">👁️</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rol">Rol</label>
+                    <div class="input-container">
+                        <select id="rol" class="form-input" required>
+                            <option value="">Seleccione un rol</option>
+                            <option value="recepcionista">Recepcionista</option>
+                            <option value="medico">Médico</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                        <span class="input-icon">👥</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="registro-button">Registrar</button>
+            </form>
+
+            <div class="loading" id="loadingSpinner">
+                <div class="loading-spinner"></div>
+                <p style="color: #7f8c8d; margin-top: 10px;">Registrando usuario...</p>
             </div>
-            <div class="form-group">
-                <label for="password">Contraseña:</label>
-                <input type="password" id="password" required>
+
+            <div class="login-link">
+                ¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a>
             </div>
-            <div class="form-group">
-                <label for="rol">Rol:</label>
-                <select id="rol" required>
-                    <option value="recepcionista">Recepcionista</option>
-                    <option value="medico">Médico</option>
-                    <option value="admin">Administrador</option>
-                </select>
-            </div>
-            <button type="submit">Registrar</button>
-        </form>
-        <div id="mensaje"></div>
-        <a href="index.html">Volver al inicio</a>
+        </div>
     </div>
 
     <script>
         const registroForm = document.getElementById('registroForm');
-        const mensajeDiv = document.getElementById('mensaje');
 
         registroForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            registro();
+        });
 
-            const nombre = document.getElementById('nombre').value;
-            const email = document.getElementById('email').value;
+        async function registro() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
             const rol = document.getElementById('rol').value;
+
+            // Validar campos
+            if (!nombre || !email || !password || !confirmPassword || !rol) {
+                showErrorMessage('Por favor complete todos los campos');
+                return;
+            }
+
+            // Validar que las contraseñas coincidan
+            if (password !== confirmPassword) {
+                showErrorMessage('Las contraseñas no coinciden');
+                document.getElementById('password').value = '';
+                document.getElementById('confirmPassword').value = '';
+                document.getElementById('password').focus();
+                return;
+            }
+
+            // Validar longitud de contraseña
+            if (password.length < 6) {
+                showErrorMessage('La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+
+            hideMessages();
+            showLoading(true);
 
             const token = localStorage.getItem('token');
 
@@ -55,7 +491,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        ...(token && { 'Authorization': `Bearer ${token}` })
                     },
                     body: JSON.stringify({ nombre, email, password, rol })
                 });
@@ -63,16 +499,84 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    mensajeDiv.textContent = 'Usuario registrado exitosamente';
-                    mensajeDiv.style.color = 'green';
+                    showLoading(false);
+                    showSuccessMessage('¡Usuario registrado exitosamente!');
                     registroForm.reset();
+
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
                 } else {
-                    mensajeDiv.textContent = data.mensaje;
-                    mensajeDiv.style.color = 'red';
+                    showLoading(false);
+                    showErrorMessage(data.mensaje || 'Error al registrar el usuario');
                 }
             } catch (error) {
-                mensajeDiv.textContent = 'Error de conexión';
-                mensajeDiv.style.color = 'red';
+                showLoading(false);
+                showErrorMessage('Error de conexión con el servidor');
+                console.error('Error:', error);
+            }
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = event.target;
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '👁️‍🗨️';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        function toggleConfirmPassword() {
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const toggleBtn = event.target;
+
+            if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                toggleBtn.textContent = '👁️‍🗨️';
+            } else {
+                confirmPasswordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        function showErrorMessage(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function showLoading(show) {
+            const form = document.getElementById('registroForm');
+            const loading = document.getElementById('loadingSpinner');
+
+            if (show) {
+                form.style.display = 'none';
+                loading.style.display = 'block';
+            } else {
+                form.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        }
+
+        // Enter para enviar
+        document.getElementById('rol').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                registro();
             }
         });
     </script>
