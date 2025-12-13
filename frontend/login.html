@@ -386,10 +386,10 @@
 
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
+                    <label for="codigoEmpleado">Código de Empleado</label>
                     <div class="input-container">
-                        <input type="email" id="email" class="form-input" placeholder="Ingrese su email" required>
-                        <span class="input-icon">✉️</span>
+                        <input type="text" id="codigoEmpleado" class="form-input" placeholder="Ingrese su código de empleado" required>
+                        <span class="input-icon">👤</span>
                     </div>
                 </div>
 
@@ -428,12 +428,12 @@
         });
 
         async function login() {
-            const email = document.getElementById('email').value.trim();
+            const codigoEmpleado = document.getElementById('codigoEmpleado').value.trim();
             const password = document.getElementById('password').value;
             const rememberMe = document.getElementById('rememberMe').checked;
 
             // Validar campos
-            if (!email || !password) {
+            if (!codigoEmpleado || !password) {
                 showErrorMessage('Por favor complete todos los campos');
                 return;
             }
@@ -447,7 +447,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ codigoEmpleado, password })
                 });
 
                 const data = await response.json();
@@ -457,9 +457,9 @@
                     localStorage.setItem('usuario', JSON.stringify(data.usuario));
 
                     if (rememberMe) {
-                        localStorage.setItem('rememberedEmail', email);
+                        localStorage.setItem('rememberedCodigoEmpleado', codigoEmpleado);
                     } else {
-                        localStorage.removeItem('rememberedEmail');
+                        localStorage.removeItem('rememberedCodigoEmpleado');
                     }
 
                     showLoading(false);
@@ -524,11 +524,11 @@
             }
         }
 
-        // Cargar email recordado
+        // Cargar código de empleado recordado
         window.addEventListener('DOMContentLoaded', function() {
-            const rememberedEmail = localStorage.getItem('rememberedEmail');
-            if (rememberedEmail) {
-                document.getElementById('email').value = rememberedEmail;
+            const rememberedCodigoEmpleado = localStorage.getItem('rememberedCodigoEmpleado');
+            if (rememberedCodigoEmpleado) {
+                document.getElementById('codigoEmpleado').value = rememberedCodigoEmpleado;
                 document.getElementById('rememberMe').checked = true;
             }
         });

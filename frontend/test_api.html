@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login API</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 5px; }
+        input { padding: 8px; margin: 5px; }
+        .result { margin-top: 10px; padding: 10px; background: #f5f5f5; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Test Login API</h1>
+
+    <div class="test-section">
+        <h3>Credenciales Disponibles:</h3>
+        <ul>
+            <li><strong>ADM001</strong> / password1 (Administrador)</li>
+            <li><strong>MED001</strong> / password2 (Médico General)</li>
+            <li><strong>MED002</strong> / password4 (Médico Pediatra)</li>
+            <li><strong>REC001</strong> / password3 (Recepcionista)</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>Probar Login</h3>
+        <input type="text" id="codigoEmpleado" placeholder="Código de Empleado" value="ADM001">
+        <input type="password" id="password" placeholder="Contraseña" value="password1">
+        <button onclick="testLogin()">Probar Login</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Probar API Usuarios (requiere token)</h3>
+        <button onclick="testUsuariosAPI()">Probar API Usuarios</button>
+        <div id="usuariosResult" class="result"></div>
+    </div>
+
+    <script>
+        async function testLogin() {
+            const codigoEmpleado = document.getElementById('codigoEmpleado').value;
+            const password = document.getElementById('password').value;
+            const result = document.getElementById('loginResult');
+
+            try {
+                result.textContent = 'Probando login...';
+
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ codigoEmpleado, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    result.innerHTML = `<strong style="color: green;">✅ Login exitoso!</strong>\n${JSON.stringify(data, null, 2)}`;
+                    localStorage.setItem('token', data.token);
+                } else {
+                    result.innerHTML = `<strong style="color: red;">❌ Error:</strong> ${data.mensaje}`;
+                }
+            } catch (error) {
+                result.innerHTML = `<strong style="color: red;">❌ Error de conexión:</strong> ${error.message}`;
+            }
+        }
+
+        async function testUsuariosAPI() {
+            const result = document.getElementById('usuariosResult');
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                result.innerHTML = '<strong style="color: red;">❌ No hay token. Haz login primero.</strong>';
+                return;
+            }
+
+            try {
+                result.textContent = 'Cargando usuarios...';
+
+                const response = await fetch('http://localhost:5000/api/auth/usuarios', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    result.innerHTML = `<strong style="color: green;">✅ Usuarios cargados!</strong>\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    result.innerHTML = `<strong style="color: red;">❌ Error:</strong> ${data.mensaje}`;
+                }
+            } catch (error) {
+                result.innerHTML = `<strong style="color: red;">❌ Error de conexión:</strong> ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\Darking\Desktop\Proyecto\Proyecto\bdHospital\frontend\test_api.html

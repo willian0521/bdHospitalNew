@@ -1,19 +1,21 @@
 // Modelo de Usuario
 class Usuario {
-  constructor(id, nombre, email, password, rol) {
-    this.id = id;
+  constructor(dni, nombre, apellido, rol, tipoMedico, codigoEmpleado, contrasena) {
+    this.dni = dni;
     this.nombre = nombre;
-    this.email = email;
-    this.password = password; // En producción, hashear la contraseña
-    this.rol = rol; // 'admin', 'medico', 'recepcionista'
+    this.apellido = apellido;
+    this.rol = rol; // 'Admin', 'Medico', 'Recepcionista'
+    this.tipoMedico = tipoMedico; // Solo para Medico
+    this.codigoEmpleado = codigoEmpleado; // Generado automáticamente
+    this.contrasena = contrasena; // En producción, hashear la contraseña
   }
 
-  // Método para verificar contraseña (simplificado)
+  // mettodo para verificar contraseña 
   verificarPassword(password) {
-    return this.password === password;
+    return this.contrasena === password;
   }
 
-  // Método para verificar rol
+  // Mtodo para verificar rol
   tieneRol(rol) {
     return this.rol === rol;
   }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - Sistema Hospitalario</title>
+    <title>Gestión de Usuarios - Sistema Hospitalario</title>
     <style>
         * {
             margin: 0;
@@ -14,16 +14,37 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
             position: relative;
             overflow: hidden;
         }
 
-        body::before {
+        .header::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -31,132 +52,421 @@
             width: 200%;
             height: 200%;
             background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .registro-container {
-            background: white;
-            border-radius: 0;
-            box-shadow: none;
-            padding: 0;
-            width: 100%;
-            height: 100vh;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            overflow: hidden;
-            animation: fadeIn 0.8s ease-out;
-            position: relative;
-            z-index: 1;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .registro-left {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            color: white;
-            padding: 50px 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .registro-left::before {
-            content: '';
-            position: absolute;
-            top: -100px;
-            right: -100px;
-            width: 300px;
-            height: 300px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .registro-left::after {
-            content: '';
-            position: absolute;
-            bottom: -80px;
-            left: -80px;
-            width: 250px;
-            height: 250px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            animation: float 8s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .hospital-icon {
-            font-size: 5em;
-            margin-bottom: 20px;
-            animation: pulse 2s ease-in-out infinite;
-            position: relative;
-            z-index: 2;
+            animation: pulse 3s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
         }
 
-        .registro-left h1 {
-            font-size: 2em;
-            margin-bottom: 15px;
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
             position: relative;
             z-index: 2;
         }
 
-        .registro-left p {
+        .header p {
             font-size: 1.1em;
             opacity: 0.9;
-            line-height: 1.6;
             position: relative;
             z-index: 2;
         }
 
-        .registro-right {
-            padding: 50px 40px;
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 15px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .controls-section {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #e8f4fd;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .filter-select {
+            padding: 15px 20px;
+            border: 2px solid #e8f4fd;
+            border-radius: 25px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .action-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #3498db;
+            display: block;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .users-list {
+            background: white;
+            border-radius: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .list-header {
+            background: linear-gradient(45deg, #34495e, #2c3e50);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .user-item {
+            background: white;
+            border: 1px solid #ecf0f1;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #3498db;
+        }
+
+        .user-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: var(--role-color);
+        }
+
+        .user-item.admin { --role-color: #e74c3c; }
+        .user-item.medico { --role-color: #3498db; }
+        .user-item.recepcionista { --role-color: #27ae60; }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .user-main-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            max-height: 90vh;
+            font-size: 1.8em;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .avatar-admin { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .avatar-medico { background: linear-gradient(45deg, #3498db, #2980b9); }
+        .avatar-recepcionista { background: linear-gradient(45deg, #27ae60, #2ecc71); }
+
+        .user-name-section {
+            flex-grow: 1;
+        }
+
+        .user-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .user-email {
+            color: #7f8c8d;
+            font-size: 0.95em;
+        }
+
+        .user-badges {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .role-badge {
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .role-admin { background: #e74c3c; }
+        .role-medico { background: #3498db; }
+        .role-recepcionista { background: #27ae60; }
+
+        .status-badge {
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-activo {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .status-inactivo {
+            background: #fee;
+            color: #e74c3c;
+        }
+
+        .user-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .detail-item .icon {
+            color: #3498db;
+            font-size: 1.1em;
+        }
+
+        .detail-item .value {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .mini-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mini-btn.edit {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .mini-btn.toggle {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .mini-btn.delete {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .mini-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .no-records {
+            text-align: center;
+            padding: 80px 20px;
+            color: #7f8c8d;
+        }
+
+        .no-records .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: #bdc3c7;
+        }
+
+        .no-records h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #95a5a6;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 100%;
+            animation: modalSlide 0.3s ease-out;
+            max-height: 80vh;
             overflow-y: auto;
         }
 
-        .registro-header {
-            text-align: center;
-            margin-bottom: 30px;
+        @keyframes modalSlide {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        .registro-header h2 {
-            font-size: 2em;
+        .modal h3 {
+            margin-bottom: 20px;
             color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .registro-header p {
-            color: #7f8c8d;
-            font-size: 1em;
+            text-align: center;
         }
 
         .form-group {
             margin-bottom: 20px;
-            position: relative;
         }
 
         .form-group label {
@@ -164,30 +474,15 @@
             color: #34495e;
             font-weight: 600;
             margin-bottom: 8px;
-            font-size: 0.95em;
-        }
-
-        .input-container {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #7f8c8d;
-            font-size: 1.2em;
         }
 
         .form-input {
             width: 100%;
-            padding: 12px 15px 12px 45px;
+            padding: 12px 15px;
             border: 2px solid #e8f4fd;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 16px;
             transition: all 0.3s ease;
-            background: white;
         }
 
         .form-input:focus {
@@ -196,388 +491,729 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
-        select.form-input {
-            padding-left: 45px;
-            cursor: pointer;
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
         }
 
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #7f8c8d;
-            font-size: 1.2em;
-            transition: color 0.3s ease;
-            background: none;
+        .modal-btn {
+            padding: 12px 25px;
             border: none;
-            padding: 0;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
-        .password-toggle:hover {
-            color: #3498db;
-        }
-
-        .registro-button {
-            width: 100%;
-            padding: 12px;
+        .modal-btn.confirm {
             background: linear-gradient(45deg, #3498db, #2980b9);
             color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 10px;
         }
 
-        .registro-button:hover {
+        .modal-btn.cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .modal-btn.delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .modal-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-        .registro-button:active {
-            transform: translateY(0);
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 9999;
+            max-width: 300px;
+            animation: slideIn 0.3s ease-out;
         }
 
-        .error-message {
-            background: #fee;
-            color: #e74c3c;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-            border-left: 4px solid #e74c3c;
-            display: none;
-            animation: shake 0.5s ease;
+        .notification.success {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+        .notification.error {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
         }
 
-        .success-message {
-            background: #d5f4e6;
-            color: #27ae60;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-            border-left: 4px solid #27ae60;
-            display: none;
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
-        .loading {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .login-link {
-            text-align: center;
-            color: #7f8c8d;
-            font-size: 0.95em;
-            margin-top: 20px;
-        }
-
-        .login-link a {
-            color: #3498db;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-
-        .login-link a:hover {
-            color: #2980b9;
-            text-decoration: underline;
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
         }
 
         @media (max-width: 768px) {
-            .registro-container {
+            .container {
+                padding: 20px;
+                margin: 0 10px;
+            }
+
+            .controls-section {
                 grid-template-columns: 1fr;
-                height: auto;
-                min-height: 100vh;
-                border-radius: 0;
+                gap: 15px;
             }
 
-            .registro-left {
-                padding: 40px 30px;
-                min-height: 30vh;
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .registro-left h1 {
-                font-size: 1.5em;
+            .user-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
             }
 
-            .registro-right {
-                padding: 40px 30px;
-                max-height: 70vh;
+            .user-badges {
+                align-self: flex-end;
             }
 
-            .registro-header h2 {
-                font-size: 1.6em;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 0;
+            .user-details {
+                grid-template-columns: 1fr;
             }
 
-            .registro-container {
-                border-radius: 0;
-                height: auto;
-                min-height: 100vh;
+            .user-actions {
+                justify-content: center;
             }
 
-            .registro-left,
-            .registro-right {
-                padding: 30px 20px;
-            }
-
-            .hospital-icon {
-                font-size: 4em;
-            }
-
-            .registro-right {
-                max-height: none;
+            .back-button {
+                position: static;
+                margin-bottom: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="registro-container">
-        <div class="registro-left">
-            <div class="hospital-icon">🏥</div>
-            <h1>Sistema de Gestión Hospitalaria</h1>
-            <p>Únete a nuestra plataforma y colabora en la administración de pacientes y servicios médicos</p>
+    <button class="back-button" onclick="goBack()">
+        ← Volver al Menú
+    </button>
+
+    <div class="container">
+        <div class="header">
+            <h1>👥 Gestión de Usuarios</h1>
+            <p>Administración completa de usuarios del sistema</p>
         </div>
 
-        <div class="registro-right">
-            <div class="registro-header">
-                <h2>Registrar Usuario</h2>
-                <p>Crea una nueva cuenta en el sistema</p>
+        <div class="controls-section">
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre, DNI, rol, código...">
+                <span class="search-icon">🔍</span>
             </div>
+            
+            <select class="filter-select" id="roleFilter">
+                <option value="">Todos los roles</option>
+                <option value="admin">👑 Administrador</option>
+                <option value="medico">👨‍⚕️ Médico</option>
+                <option value="recepcionista">👩‍💼 Recepcionista</option>
+            </select>
+            
+            <button class="action-btn btn-primary" onclick="openCreateModal()">
+                ➕ Nuevo Usuario
+            </button>
+        </div>
 
-            <div id="errorMessage" class="error-message"></div>
-            <div id="successMessage" class="success-message"></div>
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-number" id="totalUsers">0</span>
+                <div class="stat-label">Total Usuarios</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="activeUsers">0</span>
+                <div class="stat-label">Activos</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="adminCount">0</span>
+                <div class="stat-label">Administradores</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="doctorCount">0</span>
+                <div class="stat-label">Médicos</div>
+            </div>
+        </div>
 
-            <form id="registroForm">
+        <div class="users-list">
+            <div class="list-header">
+                👥 Lista de Usuarios del Sistema
+            </div>
+            <div id="usersListContainer">
+                <!-- Los usuarios se cargarán aquí dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear/editar usuario -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <h3 id="modalTitle">Crear Nuevo Usuario</h3>
+            <form id="userForm">
                 <div class="form-group">
-                    <label for="nombre">Nombre Completo</label>
-                    <div class="input-container">
-                        <input type="text" id="nombre" class="form-input" placeholder="Ingrese su nombre" required>
-                        <span class="input-icon">👤</span>
-                    </div>
+                    <label for="userDni">DNI</label>
+                    <input type="text" id="userDni" class="form-input" placeholder="Número de DNI" required>
                 </div>
-
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <div class="input-container">
-                        <input type="email" id="email" class="form-input" placeholder="Ingrese su email" required>
-                        <span class="input-icon">✉️</span>
-                    </div>
+                    <label for="userName">Nombre</label>
+                    <input type="text" id="userName" class="form-input" placeholder="Nombre del usuario" required>
                 </div>
-
                 <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <div class="input-container">
-                        <input type="password" id="password" class="form-input" placeholder="Ingrese su contraseña" required>
-                        <span class="input-icon">🔒</span>
-                        <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
-                    </div>
+                    <label for="userApellido">Apellido</label>
+                    <input type="text" id="userApellido" class="form-input" placeholder="Apellido del usuario" required>
                 </div>
-
                 <div class="form-group">
-                    <label for="confirmPassword">Confirmar Contraseña</label>
-                    <div class="input-container">
-                        <input type="password" id="confirmPassword" class="form-input" placeholder="Confirme su contraseña" required>
-                        <span class="input-icon">🔒</span>
-                        <button type="button" class="password-toggle" onclick="toggleConfirmPassword()">👁️</button>
-                    </div>
+                    <label for="userCodigoEmpleado">Código de Empleado</label>
+                    <input type="text" id="userCodigoEmpleado" class="form-input" placeholder="Se genera automáticamente" readonly>
                 </div>
-
                 <div class="form-group">
-                    <label for="rol">Rol</label>
-                    <div class="input-container">
-                        <select id="rol" class="form-input" required>
-                            <option value="">Seleccione un rol</option>
-                            <option value="recepcionista">Recepcionista</option>
-                            <option value="medico">Médico</option>
-                            <option value="admin">Administrador</option>
-                        </select>
-                        <span class="input-icon">👥</span>
-                    </div>
+                    <label for="userPassword">Contraseña</label>
+                    <input type="password" id="userPassword" class="form-input" placeholder="Mínimo 6 caracteres">
                 </div>
-
-                <button type="submit" class="registro-button">Registrar</button>
+                <div class="form-group">
+                    <label for="userRole">Rol</label>
+                    <select id="userRole" class="form-input" required onchange="toggleTipoMedico()">
+                        <option value="">Seleccione un rol</option>
+                        <option value="Admin">Administrador</option>
+                        <option value="Medico">Médico</option>
+                        <option value="Recepcionista">Recepcionista</option>
+                    </select>
+                </div>
+                <div class="form-group" id="tipoMedicoGroup" style="display: none;">
+                    <label for="userTipoMedico">Tipo de Médico</label>
+                    <input type="text" id="userTipoMedico" class="form-input" placeholder="Ej: Cardiologo, Pediatra, etc.">
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="modal-btn confirm">Guardar</button>
+                    <button type="button" class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
+                </div>
             </form>
+        </div>
+    </div>
 
-            <div class="loading" id="loadingSpinner">
-                <div class="loading-spinner"></div>
-                <p style="color: #7f8c8d; margin-top: 10px;">Registrando usuario...</p>
-            </div>
-
-            <div class="login-link">
-                ¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a>
+    <!-- Modal para confirmar eliminación -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <h3>⚠️ Confirmar Eliminación</h3>
+            <p id="deleteMessage" style="text-align: center; margin: 20px 0;"></p>
+            <div class="modal-buttons">
+                <button class="modal-btn delete" onclick="confirmDelete()">Eliminar</button>
+                <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
             </div>
         </div>
     </div>
 
     <script>
-        const registroForm = document.getElementById('registroForm');
+        let allUsers = [];
+        let filteredUsers = [];
+        let editingUserId = null;
+        let userToDelete = null;
 
-        registroForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            registro();
-        });
-
-        async function registro() {
-            const nombre = document.getElementById('nombre').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const rol = document.getElementById('rol').value;
-
-            // Validar campos
-            if (!nombre || !email || !password || !confirmPassword || !rol) {
-                showErrorMessage('Por favor complete todos los campos');
-                return;
-            }
-
-            // Validar que las contraseñas coincidan
-            if (password !== confirmPassword) {
-                showErrorMessage('Las contraseñas no coinciden');
-                document.getElementById('password').value = '';
-                document.getElementById('confirmPassword').value = '';
-                document.getElementById('password').focus();
-                return;
-            }
-
-            // Validar longitud de contraseña
-            if (password.length < 6) {
-                showErrorMessage('La contraseña debe tener al menos 6 caracteres');
-                return;
-            }
-
-            hideMessages();
-            showLoading(true);
-
-            const token = localStorage.getItem('token');
-
+        // Cargar usuarios
+        async function loadUsers() {
             try {
-                const response = await fetch('http://localhost:5000/api/auth/registro', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(token && { 'Authorization': `Bearer ${token}` })
-                    },
-                    body: JSON.stringify({ nombre, email, password, rol })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    showLoading(false);
-                    showSuccessMessage('¡Usuario registrado exitosamente!');
-                    registroForm.reset();
-
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showNotification('Debe iniciar sesión para acceder a esta página', 'error');
                     setTimeout(() => {
                         window.location.href = 'login.html';
                     }, 2000);
-                } else {
-                    showLoading(false);
-                    showErrorMessage(data.mensaje || 'Error al registrar el usuario');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:5000/api/auth/usuarios', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showNotification('Sesión expirada. Redirigiendo al login...', 'error');
+                        localStorage.removeItem('token');
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 2000);
+                        return;
+                    }
+                    throw new Error('Error al cargar usuarios');
+                }
+
+                const data = await response.json();
+                allUsers = data.usuarios.map(user => ({
+                    id: user.dni,
+                    nombre: user.nombre,
+                    email: user.dni, // Usamos DNI como email temporal
+                    rol: user.rol.toLowerCase(),
+                    tipoMedico: user.tipoMedico,
+                    codigoEmpleado: user.codigoEmpleado,
+                    activo: user.activo
+                }));
+
+                filteredUsers = [...allUsers];
+                
+                updateStats();
+                renderUsersList();
+            } catch (error) {
+                console.error('Error cargando usuarios:', error);
+                showNotification('Error al cargar usuarios: ' + error.message, 'error');
+            }
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            const total = allUsers.length;
+            const active = allUsers.filter(u => u.activo).length;
+            const admins = allUsers.filter(u => u.rol === 'admin').length;
+            const doctors = allUsers.filter(u => u.rol === 'medico').length;
+
+            document.getElementById('totalUsers').textContent = total;
+            document.getElementById('activeUsers').textContent = active;
+            document.getElementById('adminCount').textContent = admins;
+            document.getElementById('doctorCount').textContent = doctors;
+        }
+
+        // Renderizar lista de usuarios
+        function renderUsersList() {
+            const container = document.getElementById('usersListContainer');
+            
+            if (filteredUsers.length === 0) {
+                container.innerHTML = `
+                    <div class="no-records">
+                        <div class="icon">👥</div>
+                        <h3>No hay usuarios</h3>
+                        <p>No se encontraron usuarios con los filtros aplicados</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredUsers.map(user => {
+                const roleText = {
+                    'admin': '👑 Administrador',
+                    'medico': '👨‍⚕️ Médico',
+                    'recepcionista': '👩‍💼 Recepcionista'
+                };
+
+                const avatarClass = `avatar-${user.rol}`;
+                const avatarText = user.nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                const createdDate = new Date(user.fechaCreacion || Date.now());
+
+                return `
+                    <div class="user-item ${user.rol}">
+                        <div class="user-header">
+                            <div class="user-main-info">
+                                <div class="user-avatar ${avatarClass}">
+                                    ${avatarText}
+                                </div>
+                                <div class="user-name-section">
+                                    <div class="user-name">${user.nombre}</div>
+                                </div>
+                            </div>
+                            <div class="user-badges">
+                                <span class="role-badge role-${user.rol}">
+                                    ${roleText[user.rol]}
+                                </span>
+                                <span class="status-badge status-${user.activo ? 'activo' : 'inactivo'}">
+                                    ${user.activo ? '✅ Activo' : '❌ Inactivo'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="user-details">
+                            <div class="detail-item">
+                                <span class="icon">�</span>
+                                <span class="value">Código: ${user.codigoEmpleado}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="icon">🔑</span>
+                                <span class="value">DNI: ${user.id}</span>
+                            </div>
+                            ${user.rol === 'medico' && user.tipoMedico ? `
+                            <div class="detail-item">
+                                <span class="icon">🏥</span>
+                                <span class="value">Especialidad: ${user.tipoMedico}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="user-actions">
+                            <button class="mini-btn edit" onclick="editUser('${user.id}')">
+                                ✏️ Editar
+                            </button>
+                            ${user.activo ? `
+                            <button class="mini-btn toggle" onclick="toggleUserStatus('${user.id}')">
+                                🚫 Desconectar
+                            </button>
+                            ` : ''}
+                            <button class="mini-btn delete" onclick="confirmDeleteUser('${user.id}')">
+                                🗑️ Eliminar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filtrar usuarios
+        function filterUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+
+            filteredUsers = allUsers.filter(user => {
+                const matchesSearch = !searchTerm || 
+                    user.nombre.toLowerCase().includes(searchTerm) ||
+                    user.id.toLowerCase().includes(searchTerm) ||
+                    user.rol.toLowerCase().includes(searchTerm) ||
+                    (user.tipoMedico && user.tipoMedico.toLowerCase().includes(searchTerm)) ||
+                    (user.codigoEmpleado && user.codigoEmpleado.toLowerCase().includes(searchTerm));
+
+                const matchesRole = !roleFilter || user.rol === roleFilter;
+
+                return matchesSearch && matchesRole;
+            });
+
+            renderUsersList();
+        }
+
+        // Abrir modal para crear usuario
+        function openCreateModal() {
+            editingUserId = null;
+            document.getElementById('modalTitle').textContent = 'Crear Nuevo Usuario';
+            document.getElementById('userForm').reset();
+            document.getElementById('userPassword').required = true;
+            document.getElementById('userDni').readOnly = false;
+            document.getElementById('tipoMedicoGroup').style.display = 'none';
+            document.getElementById('userModal').style.display = 'flex';
+        }
+
+        // Editar usuario
+        function editUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            editingUserId = userId;
+            document.getElementById('modalTitle').textContent = 'Editar Usuario';
+            document.getElementById('userDni').value = user.id;
+            document.getElementById('userDni').readOnly = true;
+            document.getElementById('userName').value = user.nombre.split(' ')[0];
+            document.getElementById('userApellido').value = user.nombre.split(' ').slice(1).join(' ');
+            document.getElementById('userCodigoEmpleado').value = user.codigoEmpleado;
+            document.getElementById('userPassword').value = '';
+            document.getElementById('userPassword').required = false;
+            document.getElementById('userPassword').placeholder = 'Dejar vacío para mantener la actual';
+            document.getElementById('userRole').value = user.rol.charAt(0).toUpperCase() + user.rol.slice(1);
+            toggleTipoMedico();
+            document.getElementById('userTipoMedico').value = user.tipoMedico || '';
+            document.getElementById('userModal').style.display = 'flex';
+        }
+
+        // Guardar usuario
+        document.getElementById('userForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const dni = document.getElementById('userDni').value.trim();
+            const nombre = document.getElementById('userName').value.trim();
+            const apellido = document.getElementById('userApellido').value.trim();
+            const password = document.getElementById('userPassword').value;
+            const rol = document.getElementById('userRole').value;
+            const tipoMedico = document.getElementById('userTipoMedico').value.trim();
+
+            if (!dni || !nombre || !apellido || !rol) {
+                showNotification('Por favor complete todos los campos obligatorios', 'error');
+                return;
+            }
+
+            if (!editingUserId && !password) {
+                showNotification('La contraseña es obligatoria para nuevos usuarios', 'error');
+                return;
+            }
+
+            if (password && password.length < 6) {
+                showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
+                return;
+            }
+
+            if (rol === 'Medico' && !tipoMedico) {
+                showNotification('El tipo de médico es obligatorio para médicos', 'error');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showNotification('No hay sesión activa', 'error');
+                    return;
+                }
+
+                const url = editingUserId 
+                    ? `http://localhost:5000/api/auth/usuarios/${editingUserId}`
+                    : 'http://localhost:5000/api/auth/registro';
+                
+                const method = editingUserId ? 'PUT' : 'POST';
+                
+                const body = editingUserId
+                    ? { nombre, apellido, rol, tipoMedico, activo: true }
+                    : { dni, nombre, apellido, rol, tipoMedico, password };
+
+                // Si estamos editando y se proporcionó una nueva contraseña, incluirla
+                if (editingUserId && password) {
+                    body.password = password;
+                }
+
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.mensaje || 'Error al guardar usuario');
+                }
+
+                const data = await response.json();
+                showNotification(data.mensaje, 'success');
+                
+                closeModal();
+                loadUsers();
+            } catch (error) {
+                console.error('Error guardando usuario:', error);
+                showNotification(error.message, 'error');
+            }
+        });
+
+        // Activar/Desactivar usuario
+        async function toggleUserStatus(userId) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showNotification('No hay sesión activa', 'error');
+                    return;
+                }
+
+                const user = allUsers.find(u => u.id === userId);
+                if (!user || !user.activo) {
+                    showNotification('Solo se pueden desconectar usuarios activos', 'error');
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:5000/api/auth/usuarios/${userId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        activo: false
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al desconectar usuario');
+                }
+
+                const data = await response.json();
+                showNotification(data.mensaje, 'success');
+                
+                loadUsers();
+            } catch (error) {
+                console.error('Error desconectando usuario:', error);
+                showNotification('Error al desconectar usuario', 'error');
+            }
+        }
+
+        // Confirmar eliminación
+        function confirmDeleteUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            userToDelete = userId;
+            document.getElementById('deleteMessage').textContent = 
+                `¿Está seguro de que desea eliminar al usuario ${user.nombre}?`;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        // Eliminar usuario
+        async function confirmDelete() {
+            if (!userToDelete) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showNotification('No hay sesión activa', 'error');
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:5000/api/auth/usuarios/${userToDelete}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al eliminar usuario');
+                }
+
+                const data = await response.json();
+                showNotification(data.mensaje, 'success');
+                
+                userToDelete = null;
+                closeModal();
+                loadUsers();
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                showNotification('Error al eliminar usuario', 'error');
+            }
+        }
+
+        // Cerrar modales
+        function closeModal() {
+            document.getElementById('userModal').style.display = 'none';
+            document.getElementById('deleteModal').style.display = 'none';
+            editingUserId = null;
+            userToDelete = null;
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Activar/Desactivar campo tipo médico
+        function toggleTipoMedico() {
+            const role = document.getElementById('userRole').value;
+            const tipoMedicoGroup = document.getElementById('tipoMedicoGroup');
+            const tipoMedicoInput = document.getElementById('userTipoMedico');
+            
+            if (role === 'Medico') {
+                tipoMedicoGroup.style.display = 'block';
+                tipoMedicoInput.required = true;
+            } else {
+                tipoMedicoGroup.style.display = 'none';
+                tipoMedicoInput.required = false;
+                tipoMedicoInput.value = '';
+            }
+        }
+
+        // Event listeners para filtros
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si hay sesión activa
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debe iniciar sesión para acceder a esta página', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+
+            // Verificar rol de administrador
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload.rol !== 'Admin') {
+                    showNotification('Acceso denegado. Solo administradores pueden gestionar usuarios', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    return;
                 }
             } catch (error) {
-                showLoading(false);
-                showErrorMessage('Error de conexión con el servidor');
-                console.error('Error:', error);
+                showNotification('Token inválido. Redirigiendo al login...', 'error');
+                localStorage.removeItem('token');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
             }
-        }
 
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const toggleBtn = event.target;
+            document.getElementById('searchInput').addEventListener('input', filterUsers);
+            document.getElementById('roleFilter').addEventListener('change', filterUsers);
 
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleBtn.textContent = '👁️‍🗨️';
+            // Cargar usuarios al iniciar
+            loadUsers();
+            
+            showNotification('Gestión de usuarios cargada', 'success');
+        });
+
+        // Funciones de navegación
+        function goBack() {
+            if (window.opener && !window.opener.closed) {
+                window.close();
             } else {
-                passwordInput.type = 'password';
-                toggleBtn.textContent = '👁️';
+                window.location.href = 'index.html';
             }
         }
 
-        function toggleConfirmPassword() {
-            const confirmPasswordInput = document.getElementById('confirmPassword');
-            const toggleBtn = event.target;
+        // Sistema de notificaciones
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
 
-            if (confirmPasswordInput.type === 'password') {
-                confirmPasswordInput.type = 'text';
-                toggleBtn.textContent = '👁️‍🗨️';
-            } else {
-                confirmPasswordInput.type = 'password';
-                toggleBtn.textContent = '👁️';
+
+
+
+
+        // Atajos de teclado
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + N = Nuevo usuario
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                openCreateModal();
             }
-        }
-
-        function showErrorMessage(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
-
-        function showSuccessMessage(message) {
-            const successDiv = document.getElementById('successMessage');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-        }
-
-        function hideMessages() {
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
-        }
-
-        function showLoading(show) {
-            const form = document.getElementById('registroForm');
-            const loading = document.getElementById('loadingSpinner');
-
-            if (show) {
-                form.style.display = 'none';
-                loading.style.display = 'block';
-            } else {
-                form.style.display = 'block';
-                loading.style.display = 'none';
+            
+            // Ctrl + F = Focus en búsqueda
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
             }
-        }
-
-        // Enter para enviar
-        document.getElementById('rol').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                registro();
+            
+            // F5 = Actualizar
+            if (e.key === 'F5') {
+                e.preventDefault();
+                loadUsers();
+                showNotification('Lista actualizada', 'success');
             }
+        });
+
+
+
+        // Inicializar usuarios por defecto
+        window.addEventListener('load', function() {
+            // No necesitamos inicializar usuarios por defecto
         });
     </script>
 </body>

@@ -1,17 +1,18 @@
-# GestionAtencionHospital
+# Sistema de Gestión Hospitalaria
 
-Sistema de Gestión de Cola de Atención en un Hospital. Programa que simula el sistema de atención de pacientes en un hospital, usando estructuras de datos para manejar prioridad de atención y el historial de pacientes.
+Sistema de gestión hospitalaria con roles de usuario: Administrador, Médico y Recepcionista.
 
 ## Requerimientos Cumplidos
 
-- **Modelo ER y Relacional**: Entidades Usuario, Paciente, Medico, Consulta, HistorialClinico.
-- **Normalización**: Hasta 3FN.
-- **Base de Datos**: SQL Server con tablas, claves primarias/foráneas.
+- **Situación**: Gestión de atención hospitalaria con tres niveles de usuarios.
+- **Modelo ER**: Entidades Usuario, Paciente, Expediente, Tratamiento.
+- **Modelo Relacional**: Tablas con PK/FK, normalización 3FN.
+- **Base de Datos**: SQL Server con BD `bdHospital`.
 - **Datos**: Más de 50 registros distribuidos.
-- **Procedimientos Almacenados**: RegistrarPaciente, AsignarConsulta.
-- **Consultas**: 5 consultas con JOIN, WHERE, GROUP BY.
-- **Backend**: Node.js con Express, actualizado para SQL Server.
-- **Frontend**: HTML/CSS/JS intacto.
+- **Procedimientos Almacenados**: sp_RegistrarExpediente, sp_RegistrarTratamiento, sp_CerrarExpediente, sp_HistorialPorDNI.
+- **Consultas**: 5 consultas con JOIN, WHERE, GROUP BY, subconsultas.
+- **Backend**: Node.js con Express y mssql.
+- **Frontend**: HTML/CSS/JS con autenticación por roles.
 
 ## Instalación y Configuración
 
@@ -24,28 +25,33 @@ Sistema de Gestión de Cola de Atención en un Hospital. Programa que simula el 
    ```
 
 2. Configurar BD en SQL Server:
-   - Crear BD `GestionAtencionHospital`.
+   - Crear BD `bdHospital`.
    - Ejecutar el script en `database_schema.txt` en SSMS.
 
 3. Configurar conexión en `backend/.env`:
-   - Para local: `DB_CONNECTION_STRING=Server=localhost\\SQLEXPRESS;Database=GestionAtencionHospital;Trusted_Connection=True;`
-   - Para Azure: Copiar connection string de Azure Portal.
+   ```
+   DB_SERVER=localhost
+   DB_PORT=1433
+   DB_NAME=bdHospital
+   DB_USER=tu_usuario
+   DB_PASSWORD=tu_password
+   ```
 
 4. Ejecutar backend:
    ```
-   npm run dev
+   npm start
    ```
    Servidor en http://localhost:5000.
 
 ### Frontend
 
-Abrir `frontend/index.html` en navegador. Las páginas usan fetch a http://localhost:5000/api/pacientes.
+Abrir `frontend/index.html` en navegador. Requiere login con código de empleado y contraseña.
 
-## Notas
+## Roles y Funcionalidades
 
-- Si hay problemas de conexión a SQL Server local, verifica configuración de TCP/IP, puerto 1433, y servicios.
-- El proyecto usa autenticación integrada de Windows por defecto.
-- Para producción, cambiar a autenticación SQL o Azure.
+- **Administrador**: Gestión de usuarios, registro de pacientes, lista de espera, historial médico, dashboard.
+- **Médico**: Lista de espera, atender expedientes, tratamientos, historial médico, dashboard.
+- **Recepcionista**: Registro de pacientes, expedientes.
 
 ## Estructura del Proyecto
 

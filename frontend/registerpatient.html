@@ -318,6 +318,203 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
 
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin: 0;
+            padding: 0;
+        }
+
+        .checkbox-container label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 1.05em;
+            color: #2c3e50;
+        }
+
+        .search-dni-section {
+            display: none;
+            padding: 25px;
+            border: 2px solid #e8f4fd;
+            border-radius: 15px;
+            background: #fafcff;
+            margin-bottom: 30px;
+        }
+
+        .search-dni-section.active {
+            display: block;
+        }
+
+        .search-dni-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-dni-group input {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-dni-group button {
+            padding: 12px 25px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .search-dni-group button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .search-results {
+            margin-top: 20px;
+        }
+
+        .patient-result {
+            background: white;
+            border: 2px solid #27ae60;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .patient-result h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .patient-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .patient-info-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .patient-info-item strong {
+            color: #34495e;
+            display: block;
+            font-size: 0.9em;
+            margin-bottom: 3px;
+        }
+
+        .patient-info-item span {
+            color: #2c3e50;
+        }
+
+        .patient-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .patient-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-select {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-select:hover {
+            background: #229954;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        .form-content {
+            display: block;
+        }
+
+        .form-content.hidden {
+            display: none;
+        }
+
+        .consultation-form {
+            display: none;
+        }
+
+        .consultation-form.active {
+            display: block;
+        }
+
+        .patient-summary {
+            background: linear-gradient(45deg, #e8f4fd, #f0f8ff);
+            border-left: 5px solid #3498db;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .patient-summary h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .patient-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .patient-summary-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #e8f4fd;
+        }
+
+        .patient-summary-item strong {
+            color: #34495e;
+            display: block;
+            font-size: 0.9em;
+            margin-bottom: 3px;
+        }
+
+        .patient-summary-item span {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
         .success-modal {
             position: fixed;
             top: 0;
@@ -418,6 +615,26 @@
         </div>
 
         <form id="patientForm">
+            <!-- Checkbox Paciente ya inscrito -->
+            <div class="checkbox-container">
+                <input type="checkbox" id="pacienteYaInscrito" name="pacienteYaInscrito">
+                <label for="pacienteYaInscrito">📌 Paciente ya está inscrito</label>
+            </div>
+
+            <!-- Sección de búsqueda por DNI -->
+            <div class="search-dni-section" id="searchDniSection">
+                <div class="section-title">
+                    <span>🔍</span> Buscar Paciente por DNI
+                </div>
+                <div class="search-dni-group">
+                    <input type="text" id="buscarDni" placeholder="Ingrese el DNI del paciente (ej: 0801-1990-12345)" maxlength="16">
+                    <button type="button" onclick="buscarPacientePorDni()">Buscar</button>
+                </div>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <!-- Contenido del formulario -->
+            <div class="form-content" id="formContent">
             <!-- Información Personal -->
             <div class="form-section">
                 <div class="section-title">
@@ -428,35 +645,35 @@
                         <label for="nombres">
                             Nombres <span class="required">*</span>
                         </label>
-                        <input type="text" id="nombres" name="nombres" required>
+                        <input type="text" id="nombres" name="nombres" autocomplete="given-name" required>
                     </div>
                     <div class="form-group">
                         <label for="apellidos">
                             Apellidos <span class="required">*</span>
                         </label>
-                        <input type="text" id="apellidos" name="apellidos" required>
+                        <input type="text" id="apellidos" name="apellidos" autocomplete="family-name" required>
                     </div>
                     <div class="form-group">
-                        <label for="cedula">
-                            Cédula de Identidad <span class="required">*</span>
+                        <label for="dni">
+                            DNI <span class="required">*</span>
                         </label>
-                        <input type="text" id="cedula" name="cedula" placeholder="Ej: 0801-1990-12345" required>
+                        <input type="text" id="dni" name="dni" placeholder="Ej: 0801199012345" autocomplete="username" required>
                     </div>
                     <div class="form-group">
                         <label for="fechaNacimiento">
                             Fecha de Nacimiento <span class="required">*</span>
                         </label>
-                        <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+                        <input type="date" id="fechaNacimiento" name="fechaNacimiento" autocomplete="off" required>
                     </div>
                     <div class="form-group">
                         <label for="edad">Edad</label>
-                        <input type="number" id="edad" name="edad" readonly>
+                        <input type="number" id="edad" name="edad" autocomplete="off" readonly>
                     </div>
                     <div class="form-group">
                         <label for="sexo">
                             Sexo <span class="required">*</span>
                         </label>
-                        <select id="sexo" name="sexo" required>
+                        <select id="sexo" name="sexo" autocomplete="sex" required>
                             <option value="">Seleccione...</option>
                             <option value="M">Masculino</option>
                             <option value="F">Femenino</option>
@@ -466,17 +683,17 @@
                         <label for="telefono">
                             Teléfono <span class="required">*</span>
                         </label>
-                        <input type="tel" id="telefono" name="telefono" placeholder="Ej: +504 9999-9999" required>
+                        <input type="tel" id="telefono" name="telefono" placeholder="Ej: +504 9999-9999" autocomplete="tel" required>
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" placeholder="correo@ejemplo.com">
+                        <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" autocomplete="email">
                     </div>
                     <div class="form-group full-width">
                         <label for="direccion">
                             Dirección Completa <span class="required">*</span>
                         </label>
-                        <textarea id="direccion" name="direccion" placeholder="Ingrese la dirección completa del paciente..." required></textarea>
+                        <textarea id="direccion" name="direccion" placeholder="Ingrese la dirección completa del paciente..." autocomplete="address-line1" required></textarea>
                     </div>
                 </div>
             </div>
@@ -567,6 +784,90 @@
                     ❌ Cancelar
                 </button>
             </div>
+            </div>
+        </form>
+
+        <!-- Formulario de Nueva Consulta -->
+        <form id="consultationForm" class="consultation-form">
+            <!-- Resumen del Paciente -->
+            <div class="patient-summary" id="patientSummaryDiv">
+            </div>
+
+            <!-- Información Médica de la Consulta -->
+            <div class="form-section">
+                <div class="section-title">
+                    <span>🩺</span> Información de la Consulta
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="consultaMotivo">
+                            Motivo de la Consulta <span class="required">*</span>
+                        </label>
+                        <textarea id="consultaMotivo" name="consultaMotivo" placeholder="Describa brevemente el motivo de la consulta..." required></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="consultaSintomas">
+                            Síntomas Actuales <span class="required">*</span>
+                        </label>
+                        <textarea id="consultaSintomas" name="consultaSintomas" placeholder="Describa los síntomas que presenta el paciente..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="consultaTiempoSintomas">
+                            Tiempo con Síntomas
+                        </label>
+                        <select id="consultaTiempoSintomas" name="consultaTiempoSintomas">
+                            <option value="">Seleccione...</option>
+                            <option value="Menos de 1 día">Menos de 1 día</option>
+                            <option value="1-3 días">1-3 días</option>
+                            <option value="4-7 días">4-7 días</option>
+                            <option value="1-2 semanas">1-2 semanas</option>
+                            <option value="Más de 2 semanas">Más de 2 semanas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="consultaAlergias">Alergias Conocidas</label>
+                        <textarea id="consultaAlergias" name="consultaAlergias" placeholder="Medicamentos, alimentos, etc."></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="consultaMedicamentos">Medicamentos Actuales</label>
+                        <textarea id="consultaMedicamentos" name="consultaMedicamentos" placeholder="Liste los medicamentos que está tomando actualmente..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nivel de Prioridad -->
+            <div class="form-section">
+                <div class="section-title">
+                    <span>🚨</span> Nivel de Prioridad
+                </div>
+                <div class="priority-selector" id="consultaPrioritySelector">
+                    <div class="priority-option priority-alta" data-priority="alta">
+                        <div class="priority-title">🔴 ALTA</div>
+                        <div class="priority-description">Emergencia médica, requiere atención inmediata</div>
+                    </div>
+                    <div class="priority-option priority-media" data-priority="media">
+                        <div class="priority-title">🟡 MEDIA</div>
+                        <div class="priority-description">Urgente, debe ser atendido pronto</div>
+                    </div>
+                    <div class="priority-option priority-baja" data-priority="baja">
+                        <div class="priority-title">🟢 BAJA</div>
+                        <div class="priority-description">Consulta general, puede esperar</div>
+                    </div>
+                </div>
+                <input type="hidden" id="consultaPrioridad" name="consultaPrioridad" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    💾 Registrar Consulta
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="cancelarConsulta()">
+                    🔄 Buscar Otro Paciente
+                </button>
+                <button type="button" class="btn btn-danger" onclick="goBack()">
+                    ❌ Cancelar
+                </button>
+            </div>
         </form>
     </div>
 
@@ -587,15 +888,179 @@
     <script>
         // Variables globales
         let expedienteCounter = 1;
+        // Función para hacer requests autenticadas
+        function authenticatedFetch(url, options = {}) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return Promise.reject('No token');
+            }
+
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    ...options.headers
+                },
+                ...options
+            };
+
+            return fetch(url, defaultOptions);
+        }
 
         async function cargarContadorExpediente() {
             try {
-                const response = await fetch('http://localhost:5000/api/pacientes/expediente/contador');
+                const response = await authenticatedFetch('http://localhost:5000/api/pacientes/expediente/contador');
                 const data = await response.json();
                 expedienteCounter = (data.total || 0) + 1;
             } catch (e) {
                 expedienteCounter = 1;
             }
+        }
+
+        // Buscar paciente por DNI
+        async function buscarPacientePorDni() {
+            const dni = document.getElementById('buscarDni').value.trim();
+            const searchResults = document.getElementById('searchResults');
+
+            if (!dni) {
+                showNotification('Por favor ingrese un DNI', 'error');
+                return;
+            }
+
+            try {
+                const response = await authenticatedFetch(`http://localhost:5000/api/pacientes/paciente/${dni}`);
+                const data = await response.json();
+
+                if (response.ok && data) {
+                    mostrarResultadoPaciente(data, searchResults);
+                } else {
+                    searchResults.innerHTML = '<p style="color: #e74c3c; text-align: center; padding: 20px;">No se encontró paciente con ese DNI</p>';
+                }
+            } catch (err) {
+                showNotification('Error al buscar paciente: ' + err.message, 'error');
+                searchResults.innerHTML = '';
+            }
+        }
+
+        function mostrarResultadoPaciente(paciente, container) {
+            container.innerHTML = `
+                <div class="patient-result">
+                    <h3>✅ Paciente Encontrado</h3>
+                    <div class="patient-info">
+                        <div class="patient-info-item">
+                            <strong>Nombre:</strong>
+                            <span>${paciente.nombre || 'N/A'}</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <strong>DNI:</strong>
+                            <span>${paciente.dni || 'N/A'}</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <strong>Edad:</strong>
+                            <span>${paciente.edad || 'N/A'}</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <strong>Sexo:</strong>
+                            <span>${paciente.sexo === 'M' ? 'Masculino' : 'Femenino'}</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <strong>Teléfono:</strong>
+                            <span>${paciente.telefono || 'N/A'}</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <strong>Email:</strong>
+                            <span>${paciente.email || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="patient-actions">
+                        <button class="btn-select" onclick="seleccionarPaciente(${JSON.stringify(paciente).replace(/"/g, '&quot;')})">
+                            ✅ Usar este Paciente
+                        </button>
+                        <button class="btn-cancel" type="button" onclick="limpiarBusqueda()">
+                            ❌ Buscar otro
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function seleccionarPaciente(paciente) {
+            console.log('Seleccionando paciente:', paciente);
+            pacienteSeleccionado = paciente;
+            
+            // Ocultar búsqueda y mostrar formulario de consulta
+            const searchDniSection = document.getElementById('searchDniSection');
+            const consultationForm = document.getElementById('consultationForm');
+            
+            searchDniSection.classList.remove('active');
+            consultationForm.classList.add('active');
+            
+            // Mostrar resumen del paciente
+            mostrarResumenPaciente(paciente);
+            
+            // Limpiar resultados de búsqueda
+            document.getElementById('searchResults').innerHTML = '';
+            
+            // Desmarcar checkbox
+            document.getElementById('pacienteYaInscrito').checked = false;
+            
+            // Llenar datos personales disponibles después de mostrar el formulario
+            setTimeout(() => {
+                document.getElementById('nombres').value = paciente.nombre || '';
+                document.getElementById('apellidos').value = paciente.apellido || '';
+                document.getElementById('dni').value = paciente.dni || '';
+                document.getElementById('fechaNacimiento').value = paciente.fechaNacimiento || '';
+                document.getElementById('edad').value = paciente.edad || '';
+                document.getElementById('sexo').value = paciente.sexo || '';
+                document.getElementById('telefono').value = paciente.telefono || '';
+                document.getElementById('email').value = paciente.email || '';
+                document.getElementById('direccion').value = paciente.direccion || '';
+            }, 100);
+            
+            showNotification(`Datos del paciente ${paciente.nombre} cargados. Complete la información médica.`, 'success');
+        }
+
+        function mostrarResumenPaciente(paciente) {
+            const summary = document.getElementById('patientSummaryDiv');
+            summary.innerHTML = `
+                <h3>👤 Datos del Paciente Seleccionado</h3>
+                <div class="patient-summary-grid">
+                    <div class="patient-summary-item">
+                        <strong>Nombre:</strong>
+                        <span>${paciente.nombre}</span>
+                    </div>
+                    <div class="patient-summary-item">
+                        <strong>DNI:</strong>
+                        <span>${paciente.dni}</span>
+                    </div>
+                    <div class="patient-summary-item">
+                        <strong>Edad:</strong>
+                        <span>${paciente.edad} años</span>
+                    </div>
+                    <div class="patient-summary-item">
+                        <strong>Teléfono:</strong>
+                        <span>${paciente.telefono}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function cancelarConsulta() {
+            document.getElementById('consultationForm').classList.remove('active');
+            document.getElementById('searchDniSection').classList.add('active');
+            document.getElementById('consultationForm').reset();
+            document.querySelectorAll('#consultaPrioritySelector .priority-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            limpiarBusqueda();
+            pacienteSeleccionado = null;
+        }
+
+        function limpiarBusqueda() {
+            document.getElementById('buscarDni').value = '';
+            document.getElementById('searchResults').innerHTML = '';
+            document.getElementById('buscarDni').focus();
         }
 
         // Generar número de expediente
@@ -627,21 +1092,23 @@
                 });
                 
                 this.classList.add('selected');
-                document.getElementById('prioridad').value = this.dataset.priority;
+                const priorityValue = this.dataset.priority;
+                
+                // Set the correct hidden input based on the selector
+                if (this.closest('.priority-selector').id === 'consultaPrioritySelector') {
+                    document.getElementById('consultaPrioridad').value = priorityValue;
+                } else {
+                    document.getElementById('prioridad').value = priorityValue;
+                }
             });
         });
 
-        // Formatear cédula hondureña
-        document.getElementById('cedula').addEventListener('input', function() {
-            let value = this.value.replace(/\D/g, '');
-            if (value.length >= 4) {
-                value = value.substring(0, 4) + '-' + value.substring(4);
-            }
-            if (value.length >= 9) {
-                value = value.substring(0, 9) + '-' + value.substring(9, 14);
-            }
-            this.value = value;
+        // Formatear DNI
+        // Formatear DNI: solo números
+        document.getElementById('dni').addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '');
         });
+
 
         // Formatear teléfono
         document.getElementById('telefono').addEventListener('input', function() {
@@ -669,13 +1136,23 @@
             }
         });
 
+        // Manejar envío del formulario de consulta
+        document.getElementById('consultationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (validarFormularioConsulta()) {
+                registrarConsulta();
+            }
+        });
+
         function validarFormulario() {
-            const requiredFields = document.querySelectorAll('[required]');
+            const requiredFields = document.querySelectorAll('#patientForm [required]');
             let isValid = true;
             
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
                     field.style.borderColor = '#e74c3c';
+                    console.log('Campo requerido vacío:', field.name || field.id);
                     isValid = false;
                 } else {
                     field.style.borderColor = '#e8f4fd';
@@ -684,6 +1161,7 @@
 
             if (!document.getElementById('prioridad').value) {
                 showNotification('Por favor seleccione un nivel de prioridad', 'error');
+                console.log('Prioridad no seleccionada');
                 isValid = false;
             }
 
@@ -706,49 +1184,123 @@
             else if (prioridadTexto === 'media') urgencia = 2;
 
             // Formateo de campos especiales
-            const cedula = formData.get('cedula') || "";
+            const dni = formData.get('dni') || "";
             const telefono = formData.get('telefono') || "";
-            const sexo = formData.get('sexo') || "M"; // Por defecto "M"
             const email = formData.get('email') || "";
             const fechaNacimiento = formData.get('fechaNacimiento') || "";
-            const edad = Number(formData.get('edad')) || null;
 
             const paciente = {
-                nombre: (formData.get('nombres') || "") + " " + (formData.get('apellidos') || ""),
-                edad: edad,
+                dni: dni,
+                nombre: formData.get('nombres') || "",
+                apellido: formData.get('apellidos') || "",
                 fechaNacimiento: fechaNacimiento,
-                cedula: cedula,
-                sexo: sexo,
+                direccion: formData.get('direccion') || "",
                 telefono: telefono,
                 email: email,
-                direccion: formData.get('direccion') || "",
-                motivoConsulta: formData.get('motivoConsulta') || "",
-                sintomas: formData.get('sintomas') || "",
-                tiempoSintomas: formData.get('tiempoSintomas') || "",
-                alergias: formData.get('alergias') || "",
-                medicamentosActuales: formData.get('medicamentosActuales') || "",
-                urgencia: urgencia,
-                expediente: expediente,
-                atendido: false,
-                fechaRegistro: new Date().toISOString(),
-                fechaAtencion: null
+                sexo: formData.get('sexo') || ""
             };
 
-            // ENVÍA AL BACKEND/FIREBASE
+            // Primero registrar paciente si no existe, luego expediente
             try {
-                const response = await fetch('http://localhost:5000/api/pacientes', {
+                // Registrar paciente
+                const responsePaciente = await authenticatedFetch('http://localhost:5000/api/pacientes/paciente', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(paciente)
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    expedienteCounter++;
-                    document.getElementById('successExpediente').textContent = expediente;
+                const dataPaciente = await responsePaciente.json();
+                
+                if (!responsePaciente.ok) {
+                    showNotification(dataPaciente.mensaje || 'Error al registrar paciente', 'error');
+                    return;
+                }
+
+                // Ahora registrar expediente
+                const expedienteData = {
+                    dni: paciente.dni,
+                    motivoConsulta: formData.get('motivoConsulta') || "",
+                    sintomas: formData.get('sintomas') || "",
+                    urgencia: urgencia
+                };
+
+                const responseExpediente = await authenticatedFetch('http://localhost:5000/api/pacientes/expediente', {
+                    method: 'POST',
+                    body: JSON.stringify(expedienteData)
+                });
+                const dataExpediente = await responseExpediente.json();
+
+                if (responseExpediente.ok) {
+                    const expedienteId = dataExpediente.idExpediente;
+                    expedienteCounter = expedienteId + 1;
+                    document.getElementById('successExpediente').textContent = `EXP-${new Date().getFullYear()}-${expedienteId.toString().padStart(4, '0')}`;
                     document.getElementById('successModal').style.display = 'flex';
                     actualizarContadoresEnMenu();
                 } else {
-                    showNotification(data.error || 'Error al registrar paciente', 'error');
+                    showNotification(dataExpediente.mensaje || 'Error al registrar expediente', 'error');
+                }
+            } catch (err) {
+                showNotification('No se pudo conectar con el servidor', 'error');
+            }
+        }
+
+        function validarFormularioConsulta() {
+            const requiredFields = document.querySelectorAll('#consultationForm [required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#e74c3c';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '#e8f4fd';
+                }
+            });
+
+            if (!document.getElementById('consultaPrioridad').value) {
+                showNotification('Por favor seleccione un nivel de prioridad', 'error');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                showNotification('Por favor complete todos los campos requeridos', 'error');
+            }
+
+            return isValid;
+        }
+
+        async function registrarConsulta() {
+            if (!pacienteSeleccionado) {
+                showNotification('Error: Paciente no seleccionado', 'error');
+                return;
+            }
+
+            const form = document.getElementById('consultationForm');
+            const formData = new FormData(form);
+
+            const prioridad = document.getElementById('consultaPrioridad').value;
+            let urgencia = 2;
+            if (prioridad === 'alta') urgencia = 1;
+            else if (prioridad === 'baja') urgencia = 3;
+
+            const expedienteData = {
+                dni: pacienteSeleccionado.dni,
+                motivoConsulta: formData.get('consultaMotivo') || "",
+                urgencia: urgencia
+            };
+
+            try {
+                const response = await authenticatedFetch('http://localhost:5000/api/pacientes/expediente', {
+                    method: 'POST',
+                    body: JSON.stringify(expedienteData)
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const expedienteId = data.idExpediente;
+                    expedienteCounter = expedienteId + 1;
+                    document.getElementById('successExpediente').textContent = `EXP-${new Date().getFullYear()}-${expedienteId.toString().padStart(4, '0')}`;
+                    document.getElementById('successModal').style.display = 'flex';
+                } else {
+                    showNotification(data.error || 'Error al registrar consulta', 'error');
                 }
             } catch (err) {
                 showNotification('No se pudo conectar con el servidor', 'error');
@@ -794,7 +1346,7 @@
             if (window.opener && !window.opener.closed) {
                 window.close();
             } else {
-                window.location.href = 'index.html';
+                window.location.href = './index.html';
             }
         }
 
@@ -804,13 +1356,35 @@
         }
 
         function volverMenu() {
-            window.location.href = 'index.html';
+            window.location.href = './index.html';
         }
 
         // Inicializar
         document.addEventListener('DOMContentLoaded', async function() {
             await cargarContadorExpediente();
             document.getElementById('expedienteNumber').textContent = generarExpediente();
+            
+            // Configurar checkbox "Paciente ya inscrito"
+            const checkboxPacienteYaInscrito = document.getElementById('pacienteYaInscrito');
+            const searchDniSection = document.getElementById('searchDniSection');
+            const formContent = document.getElementById('formContent');
+
+            checkboxPacienteYaInscrito.addEventListener('change', function() {
+                console.log('Checkbox changed:', this.checked);
+                if (this.checked) {
+                    searchDniSection.classList.add('active');
+                    formContent.classList.add('hidden');
+                    document.getElementById('buscarDni').focus();
+                    console.log('Showing search section');
+                } else {
+                    searchDniSection.classList.remove('active');
+                    formContent.classList.remove('hidden');
+                    document.getElementById('searchResults').innerHTML = '';
+                    pacienteSeleccionado = null;
+                    console.log('Showing form section');
+                }
+            });
+
             showNotification('Formulario de registro listo', 'success');
         });
 

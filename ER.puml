@@ -1,0 +1,55 @@
+@startuml
+title Diagrama ER - bdHospital
+
+entity "Usuario" as Usuario {
+  * DNI : NVARCHAR(20) <<PK>>
+  --
+  Nombre : NVARCHAR(100)
+  Apellido : NVARCHAR(100)
+  Rol : NVARCHAR(20)
+  TipoMedico : NVARCHAR(50)
+  CodigoEmpleado : NVARCHAR(20) <<UNIQUE>>
+  Contrasena : NVARCHAR(255)
+  Activo : BIT
+}
+
+entity "Paciente" as Paciente {
+  * DNI : NVARCHAR(20) <<PK>>
+  --
+  Nombre : NVARCHAR(100)
+  Apellido : NVARCHAR(100)
+  FechaNacimiento : DATE
+  Direccion : NVARCHAR(255)
+  Telefono : NVARCHAR(20)
+  Email : NVARCHAR(100)
+}
+
+entity "Expediente" as Expediente {
+  * IdExpediente : INT <<PK>>
+  --
+  DNI : NVARCHAR(20) <<FK>>
+  FechaRegistro : DATETIME
+  Estado : NVARCHAR(20)
+  Urgencia : INT
+  CodigoEmpleado : NVARCHAR(20) <<FK>>
+  MotivoConsulta : NVARCHAR(255)
+  FechaCierre : DATETIME
+}
+
+entity "Tratamiento" as Tratamiento {
+  * IdTratamiento : INT <<PK>>
+  --
+  IdExpediente : INT <<FK>>
+  CodigoEmpleado : NVARCHAR(20) <<FK>>
+  Diagnostico : NVARCHAR(255)
+  Tratamiento : NVARCHAR(255)
+  FechaRegistro : DATETIME
+}
+
+' Relaciones
+Paciente ||--o{ Expediente : "tiene"
+Usuario ||--o{ Expediente : "crea"
+Expediente ||--o{ Tratamiento : "tiene"
+Usuario ||--o{ Tratamiento : "realiza"
+
+@enduml

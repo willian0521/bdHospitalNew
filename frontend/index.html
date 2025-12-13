@@ -44,7 +44,7 @@
             padding: 30px;
             border-radius: 15px;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
         
         .header::before {
@@ -68,6 +68,35 @@
             margin-bottom: 10px;
             position: relative;
             z-index: 2;
+        }
+        
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: white;
+            position: relative;
+            z-index: 3;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 4;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
         }
         
         .header p {
@@ -328,7 +357,10 @@
     <div class="container">
         <div class="header">
             <h1>🏥 Gestión Hospitalaria</h1>
-            
+            <div class="user-info">
+                <span>Bienvenido, <strong id="userName">Usuario</strong> (<span id="userRole">Rol</span>)</span>
+                <button id="logoutBtn" class="logout-btn">🚪 Cerrar Sesión</button>
+            </div>
         </div>
         
         <div class="urgent-alert">
@@ -336,25 +368,39 @@
         </div>
         
         <div class="menu-grid">
-            <div class="menu-card" data-route="registerpatient.html">
+            <div class="menu-card" data-route="registerpatient.html" data-roles="Admin,Recepcionista">
                 <div class="priority-indicator alta"></div>
                 <div class="menu-icon">👤</div>
                 <div class="menu-title">Registrar Paciente</div>
-                <div class="menu-description">Agregar nuevo paciente al sistema con datos completos y nivel de urgencia</div>
+                <div class="menu-description">Agregar nuevo paciente al sistema con datos completos</div>
             </div>
             
-            <div class="menu-card" data-route="waitingList.html">
+            <div class="menu-card" data-route="waitingList.html" data-roles="Admin,Medico">
                 <div class="priority-indicator media"></div>
                 <div class="menu-icon">📋</div>
                 <div class="menu-title">Lista de Espera</div>
-                <div class="menu-description">Ver todos los pacientes organizados por nivel de prioridad de atención</div>
+                <div class="menu-description">Ver expedientes en espera de atención</div>
             </div>
 
-            <div class="menu-card" data-route="patienthistory.html">
+            <div class="menu-card" data-route="patienthistory.html" data-roles="Admin,Medico">
                 <div class="priority-indicator baja"></div>
                 <div class="menu-icon">📊</div>
                 <div class="menu-title">Historial Médico</div>
-                <div class="menu-description">Consultar registro completo de pacientes atendidos y su historial</div>
+                <div class="menu-description">Consultar historial de pacientes atendidos</div>
+            </div>
+
+            <div class="menu-card" data-route="registro.html" data-roles="Admin">
+                <div class="priority-indicator media"></div>
+                <div class="menu-icon">👥</div>
+                <div class="menu-title">Gestión de Usuarios</div>
+                <div class="menu-description">Administrar usuarios y personal del sistema</div>
+            </div>
+
+            <div class="menu-card" data-route="treatments.html" data-roles="Medico">
+                <div class="priority-indicator alta"></div>
+                <div class="menu-icon">💊</div>
+                <div class="menu-title">Tratamientos</div>
+                <div class="menu-description">Registrar tratamientos para expedientes</div>
             </div>
         </div>
         
@@ -370,6 +416,22 @@
             <div class="status-item">
                 <span class="status-number" id="attendedCount">45</span>
                 <div class="status-label">Atendidos Hoy</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-extensions" style="margin-top:20px; display:flex; gap:20px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:280px; background:#fff; padding:15px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                <h3 style="margin:0 0 10px 0;">Top médicos (por tratamientos)</h3>
+                <ul id="topMedicosList" style="list-style:none; padding:0; margin:0;"> 
+                    <li style="color:#777">Cargando...</li>
+                </ul>
+            </div>
+
+            <div style="flex:1; min-width:280px; background:#fff; padding:15px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                <h3 style="margin:0 0 10px 0;">Pacientes con &gt;1 expediente</h3>
+                <ul id="pacientesRecurrentesList" style="list-style:none; padding:0; margin:0;">
+                    <li style="color:#777">Cargando...</li>
+                </ul>
             </div>
         </div>
         
@@ -480,24 +542,115 @@
         
         async function loadStats() {
             try {
-                const response = await fetch('http://localhost:5000/api/pacientes/stats');
-                const stats = await response.json();
-                document.getElementById('waitingCount').textContent = stats.waiting;
-                document.getElementById('priorityCount').textContent = stats.priority;
-                document.getElementById('attendedCount').textContent = stats.attended;
-                document.getElementById('urgentCount').textContent = stats.priority;
+                const response = await authenticatedFetch('http://localhost:5000/api/pacientes/dashboard');
+                const data = await response.json();
+                const stats = data.estadisticas;
+                document.getElementById('waitingCount').textContent = stats.enEspera;
+                // 'priorityCount' muestra la cantidad de alta prioridad en espera
+                document.getElementById('priorityCount').textContent = stats.altaPrioridad;
+                // 'attendedCount' muestra atendidos hoy
+                document.getElementById('attendedCount').textContent = stats.atendidosHoy || stats.atendidosTotal || 0;
+                // alerta urgente (misma cifra que alta prioridad)
+                document.getElementById('urgentCount').textContent = stats.altaPrioridad;
+                // Render top médicos
+                const topMedicos = data.topMedicos || [];
+                const topMedicosEl = document.getElementById('topMedicosList');
+                if (topMedicos.length === 0) {
+                    topMedicosEl.innerHTML = '<li style="color:#777">No hay datos</li>';
+                } else {
+                    topMedicosEl.innerHTML = topMedicos.map(m => `<li style="padding:6px 0; border-bottom:1px solid #f0f0f0;"><strong>${m.Nombre}</strong> — ${m.Tratamientos} tratamientos</li>`).join('');
+                }
+
+                // Render pacientes recurrentes
+                const pacientes = data.pacientesRecurrentes || [];
+                const pacientesEl = document.getElementById('pacientesRecurrentesList');
+                if (pacientes.length === 0) {
+                    pacientesEl.innerHTML = '<li style="color:#777">No hay pacientes recurrentes</li>';
+                } else {
+                    pacientesEl.innerHTML = pacientes.map(p => `<li style="padding:6px 0; border-bottom:1px solid #f0f0f0;"><strong>${p.Nombre}</strong> (${p.DNI}) — ${p.NumExpedientes} expedientes</li>`).join('');
+                }
             } catch (e) {
                 showNotification('No se pudo cargar estadísticas reales', 'error');
             }
         }
 
+        // Función para filtrar menú por rol
+        function filterMenuByRole() {
+            console.log('filterMenuByRole called');
+            const token = localStorage.getItem('token');
+            console.log('Token:', token);
+            if (!token) {
+                console.log('No token, redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                console.log('Payload:', payload);
+                const userRole = payload.rol;
+                console.log('User role:', userRole);
+
+                document.querySelectorAll('.menu-card').forEach(card => {
+                    const allowedRoles = card.dataset.roles ? card.dataset.roles.split(',') : [];
+                    if (allowedRoles.includes(userRole)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Mostrar nombre del usuario
+                document.getElementById('userName').textContent = payload.nombre;
+                document.getElementById('userRole').textContent = userRole;
+                console.log('User info updated');
+            } catch (e) {
+                console.log('Error in filterMenuByRole:', e);
+                localStorage.removeItem('token');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Función para hacer requests autenticadas
+        async function authenticatedFetch(url, options = {}) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    ...options.headers
+                },
+                ...options
+            };
+
+            return fetch(url, defaultOptions);
+        }
+
+        // Función de logout
+        function logout() {
+            console.log('Logout function called');
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            console.log('Redirecting to login.html');
+            window.location.href = 'login.html';
+        }
+
         // Llama a la función al cargar la página
         document.addEventListener('DOMContentLoaded', () => {
             loadStats();
+            filterMenuByRole();
+            
+            // Agregar event listener para el botón de logout
+            document.getElementById('logoutBtn').addEventListener('click', logout);
         });
         
-        updateSystemStats();
-        setInterval(updateSystemStats, 30000);
+        // Actualizar estadísticas en tiempo real (polling cada 5 segundos)
+        setInterval(loadStats, 5000);
         
         // En waitingList.html, registerpatient.html y patienthistory.html
         // Reemplaza la función goBack() con:

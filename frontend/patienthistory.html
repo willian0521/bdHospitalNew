@@ -639,6 +639,7 @@
                 <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre, expediente, cédula...">
                 <span class="search-icon">🔍</span>
             </div>
+            <input type="text" id="creatorFilter" class="filter-select" placeholder="Filtrar por creador (recepción/médico)">
             <select class="filter-select" id="priorityFilter">
                 <option value="">Todas las prioridades</option>
                 <option value="alta">🔴 Alta Prioridad</option>
@@ -693,6 +694,26 @@
         let patientToDelete = null;
         let showingUltimos = false;
 
+        // Función para hacer requests autenticadas
+        function authenticatedFetch(url, options = {}) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return Promise.reject('No token');
+            }
+
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    ...options.headers
+                },
+                ...options
+            };
+
+            return fetch(url, defaultOptions);
+        }
+
         document.getElementById('toggleHistoryBtn').addEventListener('click', async function() {
             showingUltimos = !showingUltimos;
             if (showingUltimos) {
@@ -706,7 +727,10 @@
 
         async function loadPatientHistory() {
             try {
-                const response = await fetch('http://localhost:5000/api/pacientes/historial');
+                const creator = document.getElementById('creatorFilter').value.trim();
+                let url = 'http://localhost:5000/api/pacientes/historial';
+                if (creator) url += `?creador=${encodeURIComponent(creator)}`;
+                const response = await authenticatedFetch(url);
                 if (!response.ok) throw new Error('No se pudo cargar el historial completo');
                 const patients = await response.json();
 
@@ -720,7 +744,10 @@
 
         async function loadUltimosAtendidos() {
             try {
-                const response = await fetch('http://localhost:5000/api/pacientes/historial?ultimos=1');
+                const creator = document.getElementById('creatorFilter').value.trim();
+                let url = 'http://localhost:5000/api/pacientes/historial?ultimos=1';
+                if (creator) url += `&creador=${encodeURIComponent(creator)}`;
+                const response = await authenticatedFetch(url);
                 if (!response.ok) throw new Error('No se pudo cargar los últimos atendidos');
                 const patients = await response.json();
 
@@ -748,8 +775,8 @@
             }
 
             container.innerHTML = patients.map(patient => {
-                const attendanceDate = new Date(patient.fechaAtencion);
-                const registrationDate = new Date(patient.fechaRegistro);
+                const attendanceDate = patient.fechaAtencion ? new Date(patient.fechaAtencion) : null;
+                const registrationDate = patient.fechaRegistro ? new Date(patient.fechaRegistro) : null;
                 const waitTime = calculateWaitTime(patient.fechaRegistro, patient.fechaAtencion);
 
                 const priorityText = {
@@ -820,11 +847,11 @@
 
                         <div class="time-info">
                             <div class="time-item">
-                                <div class="time-value">${attendanceDate.toLocaleDateString()}</div>
+                                <div class="time-value">${attendanceDate && !isNaN(attendanceDate) ? attendanceDate.toLocaleDateString() : '-'}</div>
                                 <div class="time-label">Fecha Atención</div>
                             </div>
                             <div class="time-item">
-                                <div class="time-value">${attendanceDate.toLocaleTimeString()}</div>
+                                <div class="time-value">${attendanceDate && !isNaN(attendanceDate) ? attendanceDate.toLocaleTimeString() : '-'}</div>
                                 <div class="time-label">Hora Atención</div>
                             </div>
                             <div class="time-item">
@@ -884,6 +911,11 @@
             renderPatientsList(filteredPatients); // <-- Corrige aquí
         });
 
+        // Filtrar por creador (recepcionista o médico)
+        document.getElementById('creatorFilter').addEventListener('input', function() {
+            if (showingUltimos) loadUltimosAtendidos(); else loadPatientHistory();
+        });
+
         // Mostrar información del paciente en el modal
         function showPatientInfo(expediente) {
             const patient = allPatients.find(p => p.expediente === expediente);
@@ -892,78 +924,56 @@
             const attendanceDate = new Date(patient.fechaAtencion);
             const registrationDate = new Date(patient.fechaRegistro);
 
+            // Construir sección de tratamientos
+            const tratamientosHtml = (patient.tratamientos || []).length === 0 ?
+                '<div class="info-item"><span class="info-value">No hay tratamientos registrados</span></div>' :
+                (patient.tratamientos || []).map(t => `
+                    <div style="border-bottom:1px solid #eee; padding:8px 0;">
+                      <div class="info-item"><span class="info-label">Fecha:</span><span class="info-value">${t.fechaRegistro ? new Date(t.fechaRegistro).toLocaleString() : '-'}</span></div>
+                      <div class="info-item"><span class="info-label">Médico:</span><span class="info-value">${t.creadorTratamiento || 'Desconocido'}</span></div>
+                      <div class="info-item"><span class="info-label">Diagnóstico:</span><span class="info-value">${t.diagnostico || ''}</span></div>
+                      <div class="info-item"><span class="info-label">Tratamiento:</span><span class="info-value">${t.tratamiento || ''}</span></div>
+                    </div>
+                `).join('');
+
             document.getElementById('patientInfoContent').innerHTML = `
                 <div class="info-section">
                     <h4><span>🧑‍⚕️</span> Información Básica</h4>
                     <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">Nombre:</span>
-                            <span class="info-value">${patient.nombre}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Expediente:</span>
-                            <span class="info-value">${patient.expediente}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Cédula:</span>
-                            <span class="info-value">${patient.cedula}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Teléfono:</span>
-                            <span class="info-value">${patient.telefono}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Email:</span>
-                            <span class="info-value">${patient.email || 'No registrado'}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Sexo:</span>
-                            <span class="info-value">${patient.sexo === 'M' ? 'Masculino' : 'Femenino'}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Edad:</span>
-                            <span class="info-value">${patient.edad} años</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Dirección:</span>
-                            <span class="info-value">${patient.direccion}</span>
-                        </div>
+                        <div class="info-item"><span class="info-label">Nombre:</span><span class="info-value">${patient.nombre}</span></div>
+                        <div class="info-item"><span class="info-label">Expediente:</span><span class="info-value">${patient.expediente}</span></div>
+                        <div class="info-item"><span class="info-label">Cédula:</span><span class="info-value">${patient.cedula}</span></div>
+                        <div class="info-item"><span class="info-label">Teléfono:</span><span class="info-value">${patient.telefono}</span></div>
+                        <div class="info-item"><span class="info-label">Email:</span><span class="info-value">${patient.email || 'No registrado'}</span></div>
+                        <div class="info-item"><span class="info-label">Sexo:</span><span class="info-value">${patient.sexo === 'M' ? 'Masculino' : 'Femenino'}</span></div>
+                        <div class="info-item"><span class="info-label">Edad:</span><span class="info-value">${patient.edad} años</span></div>
+                        <div class="info-item"><span class="info-label">Dirección:</span><span class="info-value">${patient.direccion}</span></div>
                     </div>
                 </div>
 
                 <div class="info-section">
                     <h4><span>🩺</span> Información Médica</h4>
                     <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">Motivo de Consulta:</span>
-                            <span class="info-value">${patient.motivoConsulta}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Alergias:</span>
-                            <span class="info-value">${patient.alergias || 'Ninguna'}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Medicamentos Actuales:</span>
-                            <span class="info-value">${patient.medicamentosActuales || 'Ninguno'}</span>
-                        </div>
+                        <div class="info-item"><span class="info-label">Motivo de Consulta:</span><span class="info-value">${patient.motivoConsulta}</span></div>
+                        <div class="info-item"><span class="info-label">Alergias:</span><span class="info-value">${patient.alergias || 'Ninguna'}</span></div>
+                        <div class="info-item"><span class="info-label">Medicamentos Actuales:</span><span class="info-value">${patient.medicamentosActuales || 'Ninguno'}</span></div>
                     </div>
                 </div>
 
                 <div class="info-section">
                     <h4><span>📅</span> Información de Atención</h4>
                     <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">Fecha de Atención:</span>
-                            <span class="info-value">${attendanceDate.toLocaleDateString()}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Hora de Atención:</span>
-                            <span class="info-value">${attendanceDate.toLocaleTimeString()}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Tiempo de Espera:</span>
-                            <span class="info-value">${calculateWaitTime(patient.fechaRegistro, patient.fechaAtencion)}</span>
-                        </div>
+                        <div class="info-item"><span class="info-label">Fecha de Atención:</span><span class="info-value">${attendanceDate && !isNaN(attendanceDate) ? attendanceDate.toLocaleDateString() : '-'}</span></div>
+                        <div class="info-item"><span class="info-label">Hora de Atención:</span><span class="info-value">${attendanceDate && !isNaN(attendanceDate) ? attendanceDate.toLocaleTimeString() : '-'}</span></div>
+                        <div class="info-item"><span class="info-label">Tiempo de Espera:</span><span class="info-value">${calculateWaitTime(patient.fechaRegistro, patient.fechaAtencion)}</span></div>
+                        <div class="info-item"><span class="info-label">Creado por (Recepción):</span><span class="info-value">${patient.creadorExpediente || '-'}</span></div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h4><span>🧾</span> Tratamientos</h4>
+                    <div class="info-grid">
+                        ${tratamientosHtml}
                     </div>
                 </div>
             `;
