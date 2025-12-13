@@ -31,7 +31,8 @@ CREATE TABLE Paciente (
     FechaNacimiento DATE NOT NULL,
     Direccion NVARCHAR(255),
     Telefono NVARCHAR(20),
-    Email NVARCHAR(100)
+    Email NVARCHAR(100),
+    Sexo NVARCHAR(1)
 );
 
 -- Tabla Expediente
