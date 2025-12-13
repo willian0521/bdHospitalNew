@@ -46,6 +46,10 @@ Sistema de gestión hospitalaria con roles de usuario: Administrador, Médico y 
 ### Frontend
 
 Abrir `frontend/index.html` en navegador. Requiere login con código de empleado y contraseña.
+DM001: Administrador (password1)
+MED001: Médico General (password2)
+MED002: Médico Pediatra (password4)
+REC001: Recepcionista (password3)
 
 ## Roles y Funcionalidades
 
