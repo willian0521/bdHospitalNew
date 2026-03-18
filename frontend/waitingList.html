@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Espera - Sistema de Gestión Hospitalaria</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4a69bd 0%, #1e3799 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4a69bd;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: white;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #4a69bd;
+            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.1);
+        }
+
+        .search-box::after {
+            content: '🔍';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a69bd 0%, #1e3799 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .patients-list {
+            padding: 0 30px 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .priority-alta {
+            background: #ffe4e4;
+            color: #c0392b;
+        }
+
+        .priority-media {
+            background: #fff4e4;
+            color: #e67e22;
+        }
+
+        .priority-baja {
+            background: #e4f7e4;
+            color: #27ae60;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-esperando {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-atendiendo {
+            background: #fff9c4;
+            color: #f57c00;
+            animation: pulse 2s infinite;
+        }
+
+        .status-atendido {
+            background: #c8e6c9;
+            color: #388e3c;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+            animation: slideUp 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .btn-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: white;
+            color: #4a69bd;
+            border: 2px solid #4a69bd;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-back:hover {
+            background: #4a69bd;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(74, 105, 189, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span>🏥</span>
+                Lista de Espera
+            </h1>
+            <p>Sistema de Gestión de Colas de Atención</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="value" id="totalEspera">0</div>
+                <div class="label">En Espera</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="totalAtendiendo">0</div>
+                <div class="label">Atendiendo</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="totalAtendidos">0</div>
+                <div class="label">Atendidos Hoy</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar paciente por nombre, ID o teléfono...">
+            </div>
+            <div class="filter-buttons">
+                <button class="btn btn-primary" onclick="filtrarPorEstado('todos')">Todos</button>
+                <button class="btn btn-warning" onclick="filtrarPorEstado('En espera')">En Espera</button>
+                <button class="btn btn-success" onclick="filtrarPorEstado('Atendido')">Atendidos</button>
+                <button class="btn btn-danger" onclick="filtrarPorPrioridad('alta')">Alta Prioridad</button>
+            </div>
+        </div>
+
+        <div class="patients-list">
+            <table id="patientsTable">
+                <thead>
+                    <tr>
+                        <th>N° Turno</th>
+                        <th>ID Expediente</th>
+                        <th>Nombre</th>
+                        <th>DNI</th>
+                        <th>Fecha Llegada</th>
+                        <th>Tiempo Espera</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="patientsList">
+                </tbody>
+            </table>
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <h3>No hay pacientes en la lista</h3>
+                <p>Los pacientes aparecerán aquí cuando se registren</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para cambiar estado -->
+    <div class="modal" id="statusModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cambiar Estado del Paciente</h2>
+                <p id="patientInfo"></p>
+            </div>
+            <div class="form-group">
+                <label>Nuevo Estado:</label>
+                <select id="newStatus">
+                    <option value="esperando">En Espera</option>
+                    <option value="atendiendo">Atendiendo</option>
+                    <option value="atendido">Atendido</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmarCambioEstado()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para cambiar prioridad -->
+    <div class="modal" id="priorityModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cambiar Prioridad del Paciente</h2>
+                <p id="patientInfoPriority"></p>
+            </div>
+            <div class="form-group">
+                <label>Nueva Prioridad:</label>
+                <select id="newPriority">
+                    <option value="baja">Baja</option>
+                    <option value="media">Media</option>
+                    <option value="alta">Alta</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePriorityModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmarCambioPrioridad()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <button class="btn-back" onclick="window.location.href='index.html'">
+        ← Volver al Menú
+    </button>
+
+    <script>
+        // Función para hacer requests autenticadas
+        function authenticatedFetch(url, options = {}) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return Promise.reject('No token');
+            }
+
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    ...options.headers
+                },
+                ...options
+            };
+
+            return fetch(url, defaultOptions);
+        }
+
+        // Array para almacenar pacientes
+        let patients = [];
+
+        // Función para cargar datos al inicio
+        async function loadPatients() {
+            try {
+                const response = await authenticatedFetch('http://localhost:5000/api/pacientes/lista-espera');
+                const data = await response.json();
+
+                // Helper: parse SQL DATETIME formats robustly into a Date or null
+                function parseFechaRegistro(raw) {
+                    if (!raw) return null;
+                    // If already a Date-like string ISO, let Date handle it first
+                    let d = new Date(raw);
+                    if (!isNaN(d)) return d;
+
+                    // Replace space between date and time with 'T'
+                    let s = raw.replace(' ', 'T');
+                    // If no timezone, assume UTC by appending Z
+                    if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) {
+                        // strip fractional seconds if present, then append Z
+                        s = s.replace(/\.(\d+)(?=($|Z|[+-]))/, '');
+                        s = s + 'Z';
+                    }
+                    d = new Date(s);
+                    if (!isNaN(d)) return d;
+
+                    // As last resort, try replacing space and removing milliseconds
+                    s = raw.replace(/\.\d+/, '').replace(' ', 'T') + 'Z';
+                    d = new Date(s);
+                    return isNaN(d) ? null : d;
+                }
+
+                patients = data.map(p => {
+                    const arrival = parseFechaRegistro(p.FechaRegistro);
+                    return {
+                        id: p.IdExpediente,
+                        patientId: p.IdExpediente,
+                        name: (p.Nombre || '') + ' ' + (p.Apellido || ''),
+                        dni: p.DNI,
+                        priority: p.Urgencia ? convertUrgenciaToPrioridad(p.Urgencia) : 'media',
+                        status: p.Estado,
+                        arrivalTime: arrival,
+                        symptoms: p.MotivoConsulta
+                    };
+                });
+
+                renderTable();
+            } catch (error) {
+                console.error('Error al cargar lista de espera:', error);
+                showToast('Error al cargar la lista de espera');
+            }
+        }
+
+        // Función auxiliar para convertir urgencia numérica a texto
+        function convertUrgenciaToPrioridad(urgencia) {
+            switch(urgencia) {
+                case 1: return 'alta';
+                case 2: return 'media';
+                case 3: return 'baja';
+                default: return 'media';
+            }
+        }
+
+        function ordenarPacientesPorPrioridadYLlegada(pacientes) {
+            const prioridadValor = { 'alta': 1, 'media': 2, 'baja': 3 };
+            const estadoValor = { 'En espera': 1, 'Atendiendo': 2, 'Atendido': 3 };
+            return pacientes
+                .slice()
+                .sort((a, b) => {
+                    // Primero por estado: En espera -> Atendiendo -> Atendido (los atendidos al final)
+                    const ea = estadoValor[a.status] || 3;
+                    const eb = estadoValor[b.status] || 3;
+                    if (ea !== eb) return ea - eb;
+
+                    // Luego por prioridad (menor valor = mayor prioridad)
+                    const pa = prioridadValor[a.priority] || 2;
+                    const pb = prioridadValor[b.priority] || 2;
+                    if (pa !== pb) return pa - pb;
+
+                    // Finalmente por hora de llegada (más temprano primero). Manejar nulls
+                    const ta = a.arrivalTime ? (a.arrivalTime instanceof Date ? a.arrivalTime.getTime() : new Date(a.arrivalTime).getTime()) : Infinity;
+                    const tb = b.arrivalTime ? (b.arrivalTime instanceof Date ? b.arrivalTime.getTime() : new Date(b.arrivalTime).getTime()) : Infinity;
+                    return ta - tb;
+                });
+        }
+
+        // Función para renderizar la tabla
+        function renderTable(filteredPatients = null) {
+            const tbody = document.getElementById('patientsList');
+            const emptyState = document.getElementById('emptyState');
+            let patientsToShow = filteredPatients || patients;
+
+            // Ordenar por prioridad y llegada
+            patientsToShow = ordenarPacientesPorPrioridadYLlegada(patientsToShow);
+
+            if (patientsToShow.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            tbody.innerHTML = patientsToShow.map((patient, index) => `
+                <tr>
+                    <td><strong>#${index + 1}</strong></td>
+                    <td>EXP-${new Date().getFullYear()}-${patient.patientId.toString().padStart(4, '0')}</td>
+                    <td><strong>${patient.name}</strong></td>
+                    <td>${patient.dni}</td>
+                    <td>${patient.arrivalTime ? patient.arrivalTime.toLocaleString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''}</td>
+                    <td>${calcularTiempoEspera(patient.arrivalTime)}</td>
+                    <td>
+                        <span class="priority-badge priority-${patient.priority}">
+                            ${patient.priority.toUpperCase()}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${patient.status.toLowerCase()}">
+                            ${getStatusText(patient.status)}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            ${patient.status === 'En espera' ? 
+                                `<button class="btn btn-success btn-sm" onclick="atenderPaciente('${patient.id}')" title="Atender">
+                                    👨‍⚕️ Atender
+                                </button>` : 
+                                `<button class="btn btn-primary btn-sm" onclick="irATratamientos('${patient.id}')" title="Ir a Tratamientos">
+                                    💊
+                                </button>`
+                            }
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            updateStats();
+        }
+
+        // Función para calcular tiempo de espera
+        function calcularTiempoEspera(arrivalTime) {
+                    if (!arrivalTime) return 'N/A';
+                    const now = Date.now();
+                    const at = arrivalTime instanceof Date ? arrivalTime.getTime() : (typeof arrivalTime === 'number' ? arrivalTime : new Date(arrivalTime).getTime());
+                    if (isNaN(at)) return 'N/A';
+                    const diff = Math.max(0, Math.floor((now - at) / 60000));
+            if (diff < 60) {
+                return `${diff} min`;
+            } else {
+                const h = Math.floor(diff / 60);
+                const m = diff % 60;
+                return `${h}h ${m}min`;
+            }
+        }
+
+        // Función para obtener texto del estado
+        function getStatusText(status) {
+            switch(status) {
+                case 'En espera': return 'Esperando';
+                case 'Atendiendo': return 'Atendiendo';
+                case 'Atendido': return 'Atendido';
+                default: return status;
+            }
+        }
+
+        // Función para atender paciente
+        async function atenderPaciente(patientId) {
+            try {
+                const response = await authenticatedFetch(`http://localhost:5000/api/pacientes/expediente/${patientId}/atender`, {
+                    method: 'PUT'
+                });
+                if (response.ok) {
+                    showToast('Paciente en atención');
+                    loadPatients();
+                    // Redirigir a tratamientos
+                    window.location.href = `treatments.html?idExpediente=${patientId}`;
+                } else {
+                    showToast('Error al atender paciente');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message);
+            }
+        }
+
+        // Funciones del modal de estado
+        function openStatusModal(patientId) {
+            document.getElementById('statusModal').classList.add('active');
+            // Set patientId for modal
+            document.getElementById('statusModal').dataset.patientId = patientId;
+        }
+
+        function closeModal() {
+            document.getElementById('statusModal').classList.remove('active');
+        }
+
+        // Función para cambiar estado
+        async function confirmarCambioEstado() {
+            const patientId = document.getElementById('statusModal').dataset.patientId;
+            const newStatus = document.getElementById('newStatus').value;
+            
+            try {
+                // Assuming there's an endpoint to change status
+                const response = await authenticatedFetch(`http://localhost:5000/api/pacientes/expediente/${patientId}/estado`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ estado: newStatus })
+                });
+                if (response.ok) {
+                    showToast('Estado actualizado');
+                    loadPatients();
+                    closeModal();
+                } else {
+                    showToast('Error al actualizar estado');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message);
+            }
+        }
+
+        // Funciones del modal de prioridad
+        function openPriorityModal(patientId) {
+            document.getElementById('priorityModal').classList.add('active');
+            document.getElementById('priorityModal').dataset.patientId = patientId;
+        }
+
+        function closePriorityModal() {
+            document.getElementById('priorityModal').classList.remove('active');
+        }
+
+        // Función para cambiar prioridad
+        async function confirmarCambioPrioridad() {
+            const patientId = document.getElementById('priorityModal').dataset.patientId;
+            const newPriority = document.getElementById('newPriority').value;
+            
+            try {
+                // Assuming endpoint exists
+                const response = await authenticatedFetch(`http://localhost:5000/api/pacientes/expediente/${patientId}/prioridad`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ prioridad: newPriority })
+                });
+                if (response.ok) {
+                    showToast('Prioridad actualizada');
+                    loadPatients();
+                    closePriorityModal();
+                } else {
+                    showToast('Error al actualizar prioridad');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message);
+            }
+        }
+
+        // Función auxiliar para convertir prioridad a urgencia
+        function convertPrioridadToUrgencia(prioridad) {
+            switch(prioridad) {
+                case 'alta': return 1;
+                case 'media': return 2;
+                case 'baja': return 3;
+                default: return 2;
+            }
+        }
+
+        // Función de búsqueda
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = patients.filter(p => 
+                p.name.toLowerCase().includes(searchTerm) || 
+                p.dni.includes(searchTerm)
+            );
+            renderTable(filtered);
+        });
+
+        // Funciones de filtrado
+        function filtrarPorEstado(estado) {
+            const filtered = estado === 'todos' ? patients : patients.filter(p => p.status === estado);
+            renderTable(filtered);
+        }
+
+        function filtrarPorPrioridad(prioridad) {
+            const filtered = prioridad === 'todos' ? patients : patients.filter(p => p.priority === prioridad);
+            renderTable(filtered);
+        }
+
+        // Función para actualizar estadísticas
+        function updateStats() {
+            const esperando = patients.filter(p => p.status === 'En espera').length;
+            const atendiendo = patients.filter(p => p.status === 'Atendiendo').length;
+            const atendidos = patients.filter(p => p.status === 'Atendido').length;
+            
+            document.getElementById('totalEspera').textContent = esperando;
+            document.getElementById('totalAtendiendo').textContent = atendiendo;
+            document.getElementById('totalAtendidos').textContent = atendidos;
+        }
+
+        // Función para mostrar notificaciones
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Función para ir a tratamientos
+        function irATratamientos(patientId) {
+            window.location.href = `treatments.html?idExpediente=${patientId}`;
+        }
+
+        // Cerrar modales al hacer clic fuera
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        }
+
+        // Inicializar tabla
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPatients();
+            setInterval(loadPatients, 60000); // Refresh every minute
+        });
+    </script>
+</body>
+</html>

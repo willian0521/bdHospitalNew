@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reportes – SmartClinic</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#e0dce3 100%);min-height:100vh;padding:20px;}
+.container{background:#fff;border-radius:20px;box-shadow:0 15px 35px rgba(0,0,0,.1);padding:30px;max-width:1300px;margin:auto;}
+.header{text-align:center;background:linear-gradient(45deg,#2c3e50,#3498db);color:#fff;padding:25px 30px;border-radius:15px;margin-bottom:25px;display:flex;justify-content:space-between;align-items:center;}
+.header h1{font-size:1.8em;} .header p{opacity:.85;font-size:.95em;}
+.back-btn{background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.3);padding:8px 16px;border-radius:25px;cursor:pointer;font-size:.9em;text-decoration:none;transition:.3s;}
+.back-btn:hover{background:rgba(255,255,255,.3);}
+.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.tab-btn{padding:10px 20px;border:none;border-radius:25px;cursor:pointer;font-size:.9em;font-weight:600;transition:.3s;background:#ecf0f1;color:#555;}
+.tab-btn.active{background:linear-gradient(45deg,#2c3e50,#3498db);color:#fff;}
+.tab-btn:hover:not(.active){background:#dde1e7;}
+.panel{display:none;} .panel.active{display:block;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:25px;}
+.stat-card{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:12px;padding:20px;text-align:center;}
+.stat-card.verde{background:linear-gradient(135deg,#11998e,#38ef7d);}
+.stat-card.naranja{background:linear-gradient(135deg,#f093fb,#f5576c);}
+.stat-card.azul{background:linear-gradient(135deg,#4facfe,#00f2fe);}
+.stat-card.gris{background:linear-gradient(135deg,#96c93d,#00b09b);}
+.stat-num{font-size:2.2em;font-weight:700;}
+.stat-label{font-size:.85em;opacity:.9;margin-top:4px;}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+@media(max-width:768px){.chart-row{grid-template-columns:1fr;}}
+.chart-box{background:#f8f9fa;border-radius:12px;padding:20px;}
+.chart-box h3{color:#2c3e50;margin-bottom:15px;font-size:1em;}
+.bar-item{margin-bottom:10px;}
+.bar-label{font-size:.82em;color:#555;margin-bottom:3px;display:flex;justify-content:space-between;}
+.bar-track{background:#dde1e7;border-radius:10px;height:22px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:10px;display:flex;align-items:center;padding-left:8px;color:#fff;font-size:.78em;font-weight:600;transition:width .8s ease;}
+.bar-blue{background:linear-gradient(90deg,#3498db,#2980b9);}
+.bar-green{background:linear-gradient(90deg,#2ecc71,#27ae60);}
+.bar-orange{background:linear-gradient(90deg,#e67e22,#d35400);}
+.bar-purple{background:linear-gradient(90deg,#9b59b6,#8e44ad);}
+.pie-legend{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.pie-item{display:flex;align-items:center;gap:8px;font-size:.85em;}
+.pie-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+table{width:100%;border-collapse:collapse;font-size:.88em;}
+thead tr{background:linear-gradient(45deg,#2c3e50,#3498db);color:#fff;}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #eee;}
+tbody tr:hover{background:#f0f7ff;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.78em;font-weight:600;}
+.badge-alta{background:#fde8e8;color:#c0392b;}
+.badge-media{background:#fef3e2;color:#d35400;}
+.badge-baja{background:#eafaf1;color:#27ae60;}
+.section-title{font-size:1.05em;font-weight:600;color:#2c3e50;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #3498db;}
+.loading{text-align:center;padding:40px;color:#999;font-size:1em;}
+.error-msg{background:#fde8e8;color:#c0392b;padding:12px 18px;border-radius:10px;margin-bottom:15px;}
+.btn-refresh{background:linear-gradient(45deg,#2c3e50,#3498db);color:#fff;border:none;padding:10px 22px;border-radius:25px;cursor:pointer;font-size:.9em;font-weight:600;margin-bottom:15px;}
+.btn-refresh:hover{opacity:.9;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>📊 Reportes Analíticos</h1>
+      <p id="usuarioInfo">SmartClinic – Sistema de Gestión Hospitalaria</p>
+    </div>
+    <a href="index.html" class="back-btn">← Volver al menú</a>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('resumen')">📈 Resumen General</button>
+    <button class="tab-btn" onclick="showTab('medicos')">👨‍⚕️ Por Médico</button>
+    <button class="tab-btn" onclick="showTab('urgencia')">🚨 Por Urgencia</button>
+    <button class="tab-btn" onclick="showTab('diagnosticos')">🩺 Diagnósticos</button>
+    <button class="tab-btn" onclick="showTab('pacientes')">👥 Pacientes</button>
+  </div>
+
+  <!-- PANEL 1: Resumen General -->
+  <div id="panel-resumen" class="panel active">
+    <button class="btn-refresh" onclick="cargarTodo()">🔄 Actualizar datos</button>
+    <div class="stats-grid" id="statsGrid">
+      <div class="loading">Cargando estadísticas...</div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box">
+        <h3>📋 Expedientes por estado</h3>
+        <div id="chartEstados"><div class="loading">Cargando...</div></div>
+      </div>
+      <div class="chart-box">
+        <h3>👤 Distribución de roles</h3>
+        <div id="chartRoles"><div class="loading">Cargando...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 2: Por Médico -->
+  <div id="panel-medicos" class="panel">
+    <p class="section-title">Productividad por médico</p>
+    <div id="tablaMedicos"><div class="loading">Cargando...</div></div>
+    <div class="chart-box" style="margin-top:20px;">
+      <h3>📊 Tratamientos por médico</h3>
+      <div id="chartMedicos"></div>
+    </div>
+  </div>
+
+  <!-- PANEL 3: Por Urgencia -->
+  <div id="panel-urgencia" class="panel">
+    <p class="section-title">Lista de espera por nivel de urgencia</p>
+    <div class="chart-row">
+      <div class="chart-box">
+        <h3>🔴 Distribución de urgencia</h3>
+        <div id="chartUrgencia"></div>
+      </div>
+      <div class="chart-box">
+        <h3>📋 Pacientes en espera</h3>
+        <div id="tablaEspera"><div class="loading">Cargando...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 4: Diagnósticos -->
+  <div id="panel-diagnosticos" class="panel">
+    <p class="section-title">Diagnósticos más frecuentes</p>
+    <div id="chartDiagnosticos"><div class="loading">Cargando...</div></div>
+  </div>
+
+  <!-- PANEL 5: Pacientes -->
+  <div id="panel-pacientes" class="panel">
+    <p class="section-title">Pacientes con múltiples visitas</p>
+    <div id="tablaRecurrentes"><div class="loading">Cargando...</div></div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:5000/api';
+const token = localStorage.getItem('token');
+if (!token) { alert('Sesión expirada. Inicia sesión.'); location.href='login.html'; }
+
+const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+token };
+
+const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+if (usuario.nombre) document.getElementById('usuarioInfo').textContent =
+  usuario.nombre + ' — ' + (usuario.rol || '');
+
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ---- Helpers ----
+function barHtml(label, value, max, colorClass, extra='') {
+  const pct = max > 0 ? Math.round((value/max)*100) : 0;
+  return `<div class="bar-item">
+    <div class="bar-label"><span>${label}</span><span>${value}${extra}</span></div>
+    <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${pct}%">${pct}%</div></div>
+  </div>`;
+}
+
+function tableRows(data, cols) {
+  if (!data || data.length === 0) return '<tr><td colspan="'+cols.length+'" style="text-align:center;color:#999">Sin datos</td></tr>';
+  return data.map(row => '<tr>' + cols.map(c => {
+    let val = row[c.key] ?? '-';
+    if (c.badge) {
+      const cls = val==='Alta'||val==='1'?'alta': val==='Media'||val==='2'?'media':'baja';
+      val = `<span class="badge badge-${cls}">${val}</span>`;
+    }
+    if (c.date && val !== '-') val = new Date(val).toLocaleDateString('es-HN');
+    return `<td>${val}</td>`;
+  }).join('') + '</tr>').join('');
+}
+
+// ---- Cargar dashboard ----
+async function cargarTodo() {
+  try {
+    const r = await fetch(API+'/pacientes/dashboard', { headers });
+    const d = await r.json();
+    const s = d.estadisticas || {};
+
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card verde"><div class="stat-num">${s.totalPacientes??0}</div><div class="stat-label">Pacientes registrados</div></div>
+      <div class="stat-card azul"><div class="stat-num">${s.enEspera??0}</div><div class="stat-label">En espera</div></div>
+      <div class="stat-card naranja"><div class="stat-num">${s.atendiendo??0}</div><div class="stat-label">Atendiendo ahora</div></div>
+      <div class="stat-card"><div class="stat-num">${s.atendidosHoy??0}</div><div class="stat-label">Atendidos hoy</div></div>
+      <div class="stat-card gris"><div class="stat-num">${s.atendidosTotal??0}</div><div class="stat-label">Total atendidos</div></div>
+      <div class="stat-card naranja"><div class="stat-num">${s.altaPrioridad??0}</div><div class="stat-label">Alta prioridad en espera</div></div>
+    `;
+
+    // Gráfica estados
+    const total = (s.enEspera??0)+(s.atendiendo??0)+(s.atendidosTotal??0)||1;
+    document.getElementById('chartEstados').innerHTML =
+      barHtml('En espera',   s.enEspera??0,       total, 'bar-orange') +
+      barHtml('Atendiendo',  s.atendiendo??0,      total, 'bar-blue') +
+      barHtml('Atendidos',   s.atendidosTotal??0,  total, 'bar-green');
+
+    // Gráfica top médicos
+    const topM = d.topMedicos || [];
+    const maxT = Math.max(...topM.map(m=>m.Tratamientos||0), 1);
+    document.getElementById('chartMedicos').innerHTML =
+      topM.map(m => barHtml(m.Nombre||'?', m.Tratamientos||0, maxT, 'bar-purple', ' tratamientos')).join('') ||
+      '<p style="color:#999;text-align:center">Sin datos</p>';
+
+    // Médicos tabla
+    const colsMed = [
+      {key:'Nombre', label:'Médico'},
+      {key:'TipoMedico', label:'Especialidad'},
+      {key:'TotalTratamientos', label:'Tratamientos'},
+      {key:'PacientesAtendidos', label:'Pacientes'}
+    ];
+    const viewR = await fetch(API+'/pacientes/dashboard', { headers });
+    const dv = await viewR.json();
+    const tm = (dv.topMedicos||[]).map(m => ({
+      Nombre: m.Nombre, TipoMedico: m.TipoMedico||'General',
+      TotalTratamientos: m.Tratamientos, PacientesAtendidos: m.Tratamientos
+    }));
+    document.getElementById('tablaMedicos').innerHTML = `
+      <table><thead><tr>${colsMed.map(c=>`<th>${c.label}</th>`).join('')}</tr></thead>
+      <tbody>${tableRows(tm, colsMed)}</tbody></table>`;
+
+    // Pacientes recurrentes
+    const recurrentes = (d.pacientesRecurrentes||[]).map(p => ({
+      DNI: p.DNI, Nombre: p.Nombre, Visitas: p.NumExpedientes
+    }));
+    document.getElementById('tablaRecurrentes').innerHTML = `
+      <table><thead><tr><th>DNI</th><th>Paciente</th><th>Visitas</th></tr></thead>
+      <tbody>${tableRows(recurrentes, [{key:'DNI'},{key:'Nombre'},{key:'Visitas'}])}</tbody></table>`;
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('statsGrid').innerHTML = `<div class="error-msg">Error al cargar datos: ${e.message}</div>`;
+  }
+}
+
+// ---- Cargar lista de espera ----
+async function cargarEspera() {
+  try {
+    const r = await fetch(API+'/pacientes/lista-espera', { headers });
+    const data = await r.json();
+
+    // Urgencia chart
+    const alta   = data.filter(d=>d.Urgencia==1).length;
+    const media  = data.filter(d=>d.Urgencia==2).length;
+    const baja   = data.filter(d=>d.Urgencia==3).length;
+    const total  = data.length || 1;
+    document.getElementById('chartUrgencia').innerHTML =
+      `<div class="pie-legend">
+        <div class="pie-item"><div class="pie-dot" style="background:#e74c3c"></div>Alta: ${alta} pacientes (${Math.round(alta/total*100)}%)</div>
+        <div class="pie-item"><div class="pie-dot" style="background:#f39c12"></div>Media: ${media} pacientes (${Math.round(media/total*100)}%)</div>
+        <div class="pie-item"><div class="pie-dot" style="background:#2ecc71"></div>Baja: ${baja} pacientes (${Math.round(baja/total*100)}%)</div>
+      </div>` +
+      barHtml('Alta urgencia',  alta,  total, 'bar-orange') +
+      barHtml('Media urgencia', media, total, 'bar-blue') +
+      barHtml('Baja urgencia',  baja,  total, 'bar-green');
+
+    // Tabla espera
+    const cols = [
+      {key:'IdExpediente', label:'#'},
+      {key:'Nombre',       label:'Paciente'},
+      {key:'Apellido',     label:'Apellido'},
+      {key:'MotivoConsulta', label:'Motivo'},
+      {key:'Estado',       label:'Estado'},
+      {key:'UrText',       label:'Urgencia', badge:true}
+    ];
+    const rows = data.map(d => ({...d, UrText: d.Urgencia==1?'Alta':d.Urgencia==2?'Media':'Baja'}));
+    document.getElementById('tablaEspera').innerHTML = `
+      <table><thead><tr>${cols.map(c=>`<th>${c.label}</th>`).join('')}</tr></thead>
+      <tbody>${tableRows(rows, cols)}</tbody></table>`;
+
+  } catch(e) {
+    document.getElementById('chartUrgencia').innerHTML = `<p class="error-msg">${e.message}</p>`;
+  }
+}
+
+// ---- Cargar diagnósticos (desde historial) ----
+async function cargarDiagnosticos() {
+  try {
+    const r = await fetch(API+'/pacientes/historial', { headers });
+    const data = await r.json();
+    const freq = {};
+    data.forEach(exp => {
+      (exp.tratamientos||[]).forEach(t => {
+        if (t.diagnostico) {
+          freq[t.diagnostico] = (freq[t.diagnostico]||0) + 1;
+        }
+      });
+    });
+    const sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    const max = sorted[0]?.[1] || 1;
+    const colors = ['bar-orange','bar-blue','bar-green','bar-purple','bar-orange','bar-blue','bar-green','bar-purple','bar-orange','bar-blue'];
+    document.getElementById('chartDiagnosticos').innerHTML =
+      sorted.map(([diag, cnt], i) => barHtml(diag, cnt, max, colors[i], ' casos')).join('') ||
+      '<p style="color:#999;text-align:center;padding:20px">Sin diagnósticos registrados aún</p>';
+  } catch(e) {
+    document.getElementById('chartDiagnosticos').innerHTML = `<p class="error-msg">${e.message}</p>`;
+  }
+}
+
+// ---- Gráfica de roles ----
+async function cargarRoles() {
+  try {
+    const r = await fetch(API+'/auth/usuarios', { headers });
+    const d = await r.json();
+    const usuarios = d.usuarios || [];
+    const roles = {};
+    usuarios.forEach(u => { roles[u.rol] = (roles[u.rol]||0)+1; });
+    const total = usuarios.length || 1;
+    const cls = {Admin:'bar-orange', Medico:'bar-blue', Recepcionista:'bar-green'};
+    document.getElementById('chartRoles').innerHTML =
+      Object.entries(roles).map(([rol,cnt]) =>
+        barHtml(rol, cnt, total, cls[rol]||'bar-purple', ' usuarios')
+      ).join('') || '<p style="color:#999;text-align:center">Sin datos</p>';
+  } catch(e) {
+    document.getElementById('chartRoles').innerHTML = `<p style="color:#999">Solo Admin puede ver usuarios</p>`;
+  }
+}
+
+// Cargar todo al inicio
+cargarTodo();
+cargarEspera();
+cargarDiagnosticos();
+cargarRoles();
+</script>
+</body>
+</html>

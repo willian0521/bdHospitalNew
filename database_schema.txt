@@ -1,0 +1,205 @@
+﻿-- Base de Datos: bdHospital
+-- Gestor: SQL Server
+-- Descripción: Sistema de gestión hospitalaria con roles de Administrador, Médico y Recepcionista.
+
+-- Crear base de datos
+CREATE DATABASE bdHospital;
+GO
+
+USE bdHospital;
+GO
+
+-- Tabla Usuario
+-- PK: DNI
+-- Atributos: DNI, Nombre, Apellido, Rol (Admin, Medico, Recepcionista), TipoMedico (solo si Rol='Medico'), CodigoEmpleado (generado automáticamente)
+CREATE TABLE Usuario (
+    DNI NVARCHAR(20) PRIMARY KEY,
+    Nombre NVARCHAR(100) NOT NULL,
+    Apellido NVARCHAR(100) NOT NULL,
+    Rol NVARCHAR(20) CHECK (Rol IN ('Admin', 'Medico', 'Recepcionista')) NOT NULL,
+    TipoMedico NVARCHAR(50) NULL, -- Solo para Medico
+    CodigoEmpleado NVARCHAR(20) UNIQUE NOT NULL, -- Generado automáticamente
+    Contrasena NVARCHAR(255) NOT NULL -- Para autenticación
+);
+
+-- Tabla Paciente
+-- PK: DNI
+CREATE TABLE Paciente (
+    DNI NVARCHAR(20) PRIMARY KEY,
+    Nombre NVARCHAR(100) NOT NULL,
+    Apellido NVARCHAR(100) NOT NULL,
+    FechaNacimiento DATE NOT NULL,
+    Direccion NVARCHAR(255),
+    Telefono NVARCHAR(20),
+    Email NVARCHAR(100),
+    Sexo NVARCHAR(1)
+);
+
+-- Tabla Expediente
+-- PK: IdExpediente (auto-increment)
+-- FK: DNI (Paciente), CodigoEmpleado (Usuario)
+CREATE TABLE Expediente (
+    IdExpediente INT IDENTITY(1,1) PRIMARY KEY,
+    DNI NVARCHAR(20) NOT NULL,
+    FechaRegistro DATETIME DEFAULT GETUTCDATE(),
+    Estado NVARCHAR(20) CHECK (Estado IN ('En espera', 'Atendiendo', 'Atendido')) DEFAULT 'En espera',
+    Urgencia INT DEFAULT 2,
+    CodigoEmpleado NVARCHAR(20) NOT NULL,
+    MotivoConsulta NVARCHAR(255),
+    FechaCierre DATETIME NULL,
+    FOREIGN KEY (DNI) REFERENCES Paciente(DNI),
+    FOREIGN KEY (CodigoEmpleado) REFERENCES Usuario(CodigoEmpleado)
+);
+
+-- Tabla Tratamiento
+-- PK: IdTratamiento (auto-increment)
+-- FK: IdExpediente, CodigoEmpleado (Usuario, Médico)
+CREATE TABLE Tratamiento (
+    IdTratamiento INT IDENTITY(1,1) PRIMARY KEY,
+    IdExpediente INT NOT NULL,
+    CodigoEmpleado NVARCHAR(20) NOT NULL,
+    Diagnostico NVARCHAR(255),
+    Tratamiento NVARCHAR(255),
+    FechaRegistro DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (IdExpediente) REFERENCES Expediente(IdExpediente),
+    FOREIGN KEY (CodigoEmpleado) REFERENCES Usuario(CodigoEmpleado)
+);
+
+-- Vista ListaEspera: Expedientes activos (En espera, Atendiendo, Atendido)
+CREATE VIEW ListaEspera AS
+SELECT e.IdExpediente, p.DNI, p.Nombre, p.Apellido, e.FechaRegistro, e.MotivoConsulta, e.Estado, e.Urgencia, u.Nombre AS Recepcionista
+FROM Expediente e
+JOIN Paciente p ON e.DNI = p.DNI
+JOIN Usuario u ON e.CodigoEmpleado = u.CodigoEmpleado
+WHERE e.Estado IN ('En espera', 'Atendiendo', 'Atendido');
+
+-- Vista HistorialMedico: Expedientes atendidos
+CREATE VIEW HistorialMedico AS
+SELECT e.IdExpediente, p.DNI, p.Nombre, p.Apellido, e.FechaRegistro, e.FechaCierre, e.MotivoConsulta, t.Diagnostico, t.Tratamiento, u.Nombre AS Creador
+FROM Expediente e
+JOIN Paciente p ON e.DNI = p.DNI
+LEFT JOIN Tratamiento t ON e.IdExpediente = t.IdExpediente
+JOIN Usuario u ON e.CodigoEmpleado = u.CodigoEmpleado
+WHERE e.Estado = 'Atendido';
+
+-- Procedimiento almacenado: Registrar nuevo expediente
+CREATE PROCEDURE sp_RegistrarExpediente
+    @DNI NVARCHAR(20),
+    @CodigoEmpleado NVARCHAR(20),
+    @MotivoConsulta NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- Verificar que el paciente exista
+    IF NOT EXISTS (SELECT 1 FROM Paciente WHERE DNI = @DNI)
+    BEGIN
+        RAISERROR('Paciente no encontrado', 16, 1);
+        RETURN;
+    END
+    -- Insertar expediente
+    INSERT INTO Expediente (DNI, CodigoEmpleado, MotivoConsulta)
+    VALUES (@DNI, @CodigoEmpleado, @MotivoConsulta);
+END;
+GO
+
+-- Procedimiento almacenado: Registrar tratamiento
+CREATE PROCEDURE sp_RegistrarTratamiento
+    @IdExpediente INT,
+    @CodigoMedico NVARCHAR(20),
+    @Diagnostico NVARCHAR(255),
+    @Tratamiento NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- Cambiar estado a Atendiendo
+    UPDATE Expediente SET Estado = 'Atendiendo' WHERE IdExpediente = @IdExpediente;
+    -- Insertar tratamiento
+    INSERT INTO Tratamiento (IdExpediente, CodigoEmpleado, Diagnostico, Tratamiento)
+    VALUES (@IdExpediente, @CodigoMedico, @Diagnostico, @Tratamiento);
+END;
+GO
+
+-- Procedimiento almacenado: Cerrar expediente
+CREATE PROCEDURE sp_CerrarExpediente
+    @IdExpediente INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE Expediente SET Estado = 'Atendido', FechaCierre = GETDATE() WHERE IdExpediente = @IdExpediente;
+END;
+GO
+
+-- Procedimiento almacenado: Consultar historial por DNI
+CREATE PROCEDURE sp_HistorialPorDNI
+    @DNI NVARCHAR(20)
+AS
+BEGIN
+    SELECT p.DNI, p.Nombre, e.IdExpediente, e.FechaRegistro, e.Estado, t.Diagnostico, t.Tratamiento
+    FROM Paciente p
+    INNER JOIN Expediente e ON p.DNI = e.DNI
+    LEFT JOIN Tratamiento t ON e.IdExpediente = t.IdExpediente
+    WHERE p.DNI = @DNI;
+END;
+GO
+
+-- Consultas de ejemplo
+-- 1. JOIN: Pacientes con expedientes en espera
+SELECT p.Nombre, p.Apellido, e.IdExpediente, e.MotivoConsulta
+FROM Paciente p
+INNER JOIN Expediente e ON p.DNI = e.DNI
+WHERE e.Estado = 'En espera';
+
+-- 2. WHERE: Tratamientos de un médico específico
+SELECT t.IdTratamiento, t.Diagnostico, t.Tratamiento
+FROM Tratamiento t
+WHERE t.CodigoEmpleado = 'MED001';
+
+-- 3. GROUP BY: Número de expedientes por estado
+SELECT Estado, COUNT(*) AS Cantidad
+FROM Expediente
+GROUP BY Estado;
+
+-- 4. Subconsulta: Pacientes con más de un expediente
+SELECT p.DNI, p.Nombre
+FROM Paciente p
+WHERE (SELECT COUNT(*) FROM Expediente e WHERE e.DNI = p.DNI) > 1;
+
+-- 5. JOIN con agregación: Médicos con más tratamientos
+SELECT u.Nombre, COUNT(t.IdTratamiento) AS Tratamientos
+FROM Usuario u
+INNER JOIN Tratamiento t ON u.CodigoEmpleado = t.CodigoEmpleado
+WHERE u.Rol = 'Medico'
+GROUP BY u.Nombre;
+
+-- Datos de prueba (al menos 3 por tabla)
+-- Usuarios
+INSERT INTO Usuario (DNI, Nombre, Apellido, Rol, TipoMedico, CodigoEmpleado, Contrasena) VALUES
+('12345678', 'Admin', 'Uno', 'Admin', NULL, 'ADM001', 'password1'),
+('87654321', 'Medico', 'General', 'Medico', 'General', 'MED001', 'password2'),
+('11223344', 'Recepcionista', 'Uno', 'Recepcionista', NULL, 'REC001', 'password3'),
+('44332211', 'Medico', 'Pediatra', 'Medico', 'Pediatria', 'MED002', 'password4');
+
+-- Pacientes
+INSERT INTO Paciente (DNI, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email) VALUES
+('11111111', 'Juan', 'Perez', '1980-01-01', 'Calle 1', '123456789', 'juan@email.com'),
+('22222222', 'Maria', 'Lopez', '1990-02-02', 'Calle 2', '987654321', 'maria@email.com'),
+('33333333', 'Carlos', 'Gomez', '1975-03-03', 'Calle 3', '555666777', 'carlos@email.com'),
+('44444444', 'Ana', 'Rodriguez', '1985-04-04', 'Calle 4', '888999000', 'ana@email.com'),
+('55555555', 'Luis', 'Martinez', '1995-05-05', 'Calle 5', '111222333', 'luis@email.com');
+
+-- Expedientes (generados automáticamente)
+EXEC sp_RegistrarExpediente '11111111', 'REC001', 'Dolor de cabeza';
+EXEC sp_RegistrarExpediente '22222222', 'REC001', 'Fiebre';
+EXEC sp_RegistrarExpediente '33333333', 'REC001', 'Lesión';
+EXEC sp_RegistrarExpediente '44444444', 'REC001', 'Chequeo';
+EXEC sp_RegistrarExpediente '55555555', 'REC001', 'Consulta general';
+
+-- Tratamientos
+EXEC sp_RegistrarTratamiento 1, 'MED001', 'Migraña', 'Paracetamol';
+EXEC sp_RegistrarTratamiento 2, 'MED002', 'Infección', 'Antibióticos';
+EXEC sp_RegistrarTratamiento 3, 'MED001', 'Fractura', 'Yeso';
+
+-- Cerrar algunos expedientes
+EXEC sp_CerrarExpediente 1;
+EXEC sp_CerrarExpediente 2;
+EXEC sp_CerrarExpediente 3;

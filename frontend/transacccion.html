@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Registrar Tratamiento</title>
+</head>
+
+<body>
+
+<h2>Registrar Tratamiento y Expediente</h2>
+
+<form id="transaccionForm">
+
+Paciente ID
+<input type="number" id="paciente_id"><br><br>
+
+Descripcion
+<input type="text" id="descripcion"><br><br>
+
+Medicamentos
+<input type="text" id="medicamentos"><br><br>
+
+<button type="submit">Guardar</button>
+
+</form>
+
+<script>
+
+document.getElementById("transaccionForm").addEventListener("submit", async (e)=>{
+
+    e.preventDefault();
+
+    const data = {
+
+        paciente_id: document.getElementById("paciente_id").value,
+        descripcion: document.getElementById("descripcion").value,
+        medicamentos: document.getElementById("medicamentos").value
+
+    };
+
+    await fetch("http://localhost:3000/transaccion",{
+
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify(data)
+
+    });
+
+    alert("Transacción realizada");
+
+});
+
+</script>
+
+</body>
+</html>
