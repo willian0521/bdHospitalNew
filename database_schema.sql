@@ -610,7 +610,7 @@ GRANT EXECUTE ON sp_RegistrarExpediente         TO rol_admin;
 GRANT EXECUTE ON sp_RegistrarTratamiento        TO rol_admin;
 GRANT EXECUTE ON sp_CerrarExpediente            TO rol_admin;
 GRANT EXECUTE ON sp_HistorialPorDNI             TO rol_admin;
-GRANT EXECUTE ON sp_RegistrarTratamientoYCerrar TO rol_admin;
+GRANT EXECUTE ON sp_RegTratamientoYCerrar TO rol_admin;
 GO
 
 -- Permisos para rol_medico
