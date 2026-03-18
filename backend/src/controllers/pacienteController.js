@@ -4,25 +4,29 @@ import { sql } from '../../db.js';
 const pacienteController = {
   // Registrar paciente nuevo (solo si no existe por DNI)
   registrarPaciente: async (req, res) => {
-    try {
-      const { dni, nombre, apellido, fechaNacimiento, direccion, telefono, email, sexo } = req.body;
+  try {
+    const { dni, nombre, apellido, fechaNacimiento, direccion, telefono, email, sexo } = req.body;
 
-      // Verificar si ya existe
-      const existing = await sql.query`SELECT * FROM Paciente WHERE DNI = ${dni}`;
-      if (existing.recordset.length > 0) {
-        return res.status(400).json({ mensaje: 'Paciente ya registrado' });
-      }
+    const result = await sql.query`
+      EXEC sp_RegistrarPaciente
+        @DNI             = ${dni},
+        @Nombre          = ${nombre},
+        @Apellido        = ${apellido},
+        @FechaNacimiento = ${fechaNacimiento},
+        @Sexo            = ${sexo},
+        @Direccion       = ${direccion},
+        @Telefono        = ${telefono},
+        @Email           = ${email}
+    `;
 
-      await sql.query`
-        INSERT INTO Paciente (DNI, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email, Sexo)
-        VALUES (${dni}, ${nombre}, ${apellido}, ${fechaNacimiento}, ${direccion}, ${telefono}, ${email}, ${sexo})
-      `;
-
-      res.status(201).json({ mensaje: 'Paciente registrado exitosamente' });
-    } catch (error) {
-      console.error('Error en historialMedico:', error);
-      res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
-    }
+    res.status(201).json({ mensaje: result.recordset[0].Mensaje });
+  } catch (error) {
+    // El SP lanza RAISERROR, llega aquí con el mensaje correcto
+    const isDuplicate = error.message.includes('ya registrado');
+    res.status(isDuplicate ? 400 : 500).json({
+      mensaje: error.message
+    });
+  }
   },
 
   // Buscar paciente por DNI
