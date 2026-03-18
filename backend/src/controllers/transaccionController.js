@@ -3,51 +3,29 @@ import { sql } from '../../db.js';
 const transaccionController = {
   // Transacción completa: registrar tratamiento + cerrar expediente en una sola operación atómica
   crearTratamientoYCerrar: async (req, res) => {
-    const transaction = new sql.Transaction();
-    try {
-      const { idExpediente, diagnostico, tratamiento } = req.body;
-      const codigoMedico = req.usuario.codigoEmpleado;
+  try {
+    const { idExpediente, diagnostico, tratamiento } = req.body;
+    const codigoMedico = req.usuario.codigoEmpleado;
 
-      await transaction.begin();
+    const result = await sql.query`
+      EXEC sp_RegistrarTratamientoYCerrar
+        @IdExpediente = ${idExpediente},
+        @CodigoMedico = ${codigoMedico},
+        @Diagnostico  = ${diagnostico},
+        @Tratamiento  = ${tratamiento}
+    `;
 
-      // Validar que el expediente exista y esté activo
-      const check = await transaction.request()
-        .input('id', sql.Int, idExpediente)
-        .query('SELECT Estado FROM Expediente WHERE IdExpediente = @id');
-
-      if (check.recordset.length === 0) {
-        await transaction.rollback();
-        return res.status(404).json({ mensaje: 'Expediente no encontrado' });
-      }
-      if (check.recordset[0].Estado === 'Atendido') {
-        await transaction.rollback();
-        return res.status(400).json({ mensaje: 'El expediente ya está cerrado' });
-      }
-
-      // Paso 1: Insertar tratamiento
-      await transaction.request()
-        .input('idExp',   sql.Int,          idExpediente)
-        .input('codMed',  sql.NVarChar(20),  codigoMedico)
-        .input('diag',    sql.NVarChar(255), diagnostico)
-        .input('trat',    sql.NVarChar(255), tratamiento)
-        .query(`INSERT INTO Tratamiento (IdExpediente, CodigoEmpleado, Diagnostico, Tratamiento)
-                VALUES (@idExp, @codMed, @diag, @trat)`);
-
-      // Paso 2: Cambiar estado a Atendido y registrar fecha de cierre
-      await transaction.request()
-        .input('id', sql.Int, idExpediente)
-        .query(`UPDATE Expediente
-                SET Estado = 'Atendido', FechaCierre = GETDATE()
-                WHERE IdExpediente = @id`);
-
-      await transaction.commit();
-      res.json({ mensaje: 'Transacción completada: tratamiento registrado y expediente cerrado' });
-
-    } catch (error) {
-      if (transaction._aborted === false) await transaction.rollback();
-      res.status(500).json({ mensaje: 'Error en la transacción — ROLLBACK ejecutado', error: error.message });
-    }
-  },
+    res.json({
+      mensaje: result.recordset[0].Mensaje,
+      idTratamiento: result.recordset[0].IdTratamiento
+    });
+  } catch (error) {
+    // RAISERROR del SP llega aquí automáticamente
+    const status = error.message.includes('no encontrado') ? 404
+                 : error.message.includes('ya está cerrado') ? 400 : 500;
+    res.status(status).json({ mensaje: error.message });
+  }
+},
 
   // Consulta del historial de transacciones (expedientes cerrados con tratamiento)
   getHistorialTransacciones: async (req, res) => {
