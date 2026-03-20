@@ -3,467 +3,773 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestión de Tratamientos</title>
-
+<title>Gestión de Tratamientos - SmartClinic</title>
 <style>
-body{
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg,#667eea,#764ba2);
-    padding:20px;
+/* ── Reset y base ───────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
 }
-.container{
-    background:#fff;
-    border-radius:15px;
-    padding:25px;
-    max-width:1400px;
-    margin:auto;
+
+/* ── Layout principal ──────────────────────────────────────── */
+.container {
+    background: #fff;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 1400px;
+    margin: auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 }
-.header{
-    text-align:center;
-    color:white;
-    background:linear-gradient(45deg,#2c3e50,#3498db);
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:20px;
+
+.header {
+    text-align: center;
+    color: white;
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 0;
     grid-column: 1 / -1;
+    position: relative;
+    overflow: hidden;
 }
-.controls{
-    display:grid;
-    grid-template-columns:1fr auto auto auto;
-    gap:10px;
-    margin-bottom:20px;
+.header::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    animation: pulse 4s ease-in-out infinite;
 }
-input,select,button{
-    padding:12px;
-    border-radius:20px;
-    border:1px solid #ccc;
+@keyframes pulse {
+    0%, 100% { transform: scale(1);   opacity: 0.5; }
+    50%       { transform: scale(1.1); opacity: 0.9; }
 }
-button{
-    cursor:pointer;
-    font-weight:bold;
+.header h1 { font-size: 2em; margin-bottom: 6px; position: relative; z-index: 2; }
+.header p  { opacity: 0.85; position: relative; z-index: 2; }
+
+/* ── Tarjeta del paciente ──────────────────────────────────── */
+.patient-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(102,126,234,0.35);
 }
-.btn-primary{background:#3498db;color:white;}
-.btn-success{background:#2ecc71;color:white;}
-.treatment{
-    border-left:6px solid #3498db;
-    padding:15px;
-    margin-bottom:15px;
-    background:#f9f9f9;
-    border-radius:10px;
+.patient-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(255,255,255,0.25);
+    padding-bottom: 15px;
+    gap: 10px;
 }
-.treatment.activo{border-color:#2ecc71;}
-.treatment.completado{border-color:#3498db;}
-.treatment.suspendido{border-color:#e74c3c;}
-.badge{
-    padding:6px 12px;
-    border-radius:20px;
-    color:white;
-    font-size:0.85em;
+.patient-name       { font-size: 1.7em; font-weight: bold; margin-bottom: 4px; }
+.patient-expediente { font-size: 0.92em; opacity: 0.88; }
+.priority-badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.88em;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
-.status-activo{background:#2ecc71;}
-.status-completado{background:#3498db;}
-.status-suspendido{background:#e74c3c;}
-.urg-alta{background:#e74c3c;}
-.urg-media{background:#f39c12;}
-.urg-baja{background:#95a5a6;}
-.actions button{
-    margin-right:5px;
-    margin-top:10px;
+.priority-alta  { background: #e74c3c; }
+.priority-media { background: #f39c12; }
+.priority-baja  { background: #27ae60; }
+
+.patient-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
-.modal-bg{
-    position:fixed;
-    top:0;left:0;right:0;bottom:0;
-    background:rgba(0,0,0,.5);
-    display:none;
-    justify-content:center;
-    align-items:center;
+.details-column h3 {
+    margin-bottom: 12px;
+    color: white;
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+    padding-bottom: 6px;
+    font-size: 1em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
 }
-.modal{
-    background:white;
-    padding:25px;
-    border-radius:15px;
-    max-width:500px;
-    width:100%;
+.detail-row {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
 }
-.patient-card{
-    background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color:white;
-    padding:25px;
-    border-radius:15px;
-    margin-bottom:25px;
+.detail-row:last-child { border-bottom: none; }
+.detail-label { font-size: 0.8em; opacity: 0.75; margin-bottom: 3px; }
+.detail-value { font-size: 1em; font-weight: 600; line-height: 1.4; }
+
+/* ── Tags de listas (síntomas, medicamentos, alergias) ──────── */
+.tag-list-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 3px;
 }
-.patient-card-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-    border-bottom:2px solid rgba(255,255,255,0.3);
-    padding-bottom:15px;
+.tag-display {
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 0.82em;
+    font-weight: 600;
+    display: inline-block;
 }
-.patient-name{
-    font-size:1.8em;
-    font-weight:bold;
-}
-.patient-expediente{
-    font-size:0.95em;
-    opacity:0.9;
-}
-.priority-badge{
-    padding:8px 15px;
-    border-radius:20px;
-    font-weight:bold;
-    font-size:0.9em;
-}
-.priority-alta{background:#e74c3c;}
-.priority-media{background:#f39c12;}
-.priority-baja{background:#27ae60;}
-.patient-details-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-    margin-bottom:20px;
-}
-.detail-row{
-    padding:10px 0;
-    border-bottom:1px solid rgba(255,255,255,0.2);
-}
-.detail-label{
-    font-size:0.85em;
-    opacity:0.8;
-    margin-bottom:3px;
-}
-.detail-value{
-    font-size:1.1em;
-    font-weight:600;
-}
-.treatment-form{
+.tag-sintoma  { background: rgba(52,152,219,0.35);  border: 1px solid rgba(52,152,219,0.6);  color: #d6eaf8; }
+.tag-medic    { background: rgba(39,174,96,0.35);   border: 1px solid rgba(39,174,96,0.6);   color: #d5f5e3; }
+.tag-alergia  { background: rgba(231,76,60,0.35);   border: 1px solid rgba(231,76,60,0.6);   color: #fadbd8; }
+.tag-empty    { opacity: 0.55; font-style: italic; font-size: 0.88em; font-weight: normal; }
+
+/* ── Formulario de tratamiento ─────────────────────────────── */
+.treatment-form {
     background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     color: white;
     padding: 25px;
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(240,147,251,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
-.treatment-form h2{
+.treatment-form h2 {
     margin-bottom: 20px;
     text-align: center;
+    font-size: 1.4em;
 }
-.treatment-form label{
+.treatment-form label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 6px;
+    font-weight: 700;
+    font-size: 0.95em;
+    opacity: 0.95;
 }
-.treatment-form textarea{
+.treatment-form textarea {
     width: 100%;
-    padding: 12px;
+    padding: 13px 15px;
     border-radius: 10px;
     border: none;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
     font-family: inherit;
+    font-size: 15px;
     resize: vertical;
+    min-height: 100px;
+    transition: box-shadow 0.2s;
+    background: rgba(255,255,255,0.95);
+    color: #2c3e50;
 }
-.treatment-form button{
-    margin-right: 10px;
-    margin-top: 10px;
+.treatment-form textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.4);
+    background: white;
+}
+.treatment-form textarea::placeholder { color: #95a5a6; }
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+}
+.btn {
+    padding: 13px 22px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.25s ease;
+    flex: 1;
+    min-width: 140px;
+    text-align: center;
+}
+.btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+.btn:active { transform: translateY(0); }
+.btn-success  { background: #2ecc71; color: white; }
+.btn-primary  { background: #3498db; color: white; }
+.btn-combined {
+    background: linear-gradient(45deg, #8e44ad, #3498db);
+    color: white;
+    grid-column: 1 / -1;
 }
 
+/* ── Estado / loading ──────────────────────────────────────── */
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: #7f8c8d;
+    font-size: 1.1em;
+    flex-direction: column;
+    gap: 12px;
+}
+.spinner {
+    width: 36px; height: 36px;
+    border: 4px solid #e8f4fd;
+    border-top-color: #3498db;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-@media (max-width: 768px) {
-    .container {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    .header {
-        grid-column: 1;
-    }
+.error-state {
+    background: #fdf2f2;
+    border: 2px solid #e74c3c;
+    border-radius: 12px;
+    padding: 20px;
+    color: #c0392b;
+    text-align: center;
+}
+
+/* ── Notificaciones ────────────────────────────────────────── */
+.notification {
+    position: fixed;
+    top: 20px; right: 20px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+    z-index: 9999;
+    max-width: 320px;
+    animation: slideIn 0.3s ease-out;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+.notification.success { background: linear-gradient(45deg, #27ae60, #2ecc71); }
+.notification.error   { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+.notification.info    { background: linear-gradient(45deg, #2980b9, #3498db); }
+@keyframes slideIn  { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes slideOut { from { transform: translateX(0);    opacity: 1; } to { transform: translateX(110%); opacity: 0; } }
+
+/* ── Modal de confirmación ─────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+    background: white;
+    padding: 30px;
+    border-radius: 18px;
+    max-width: 420px;
+    width: 100%;
+    animation: modalSlide 0.3s ease-out;
+    text-align: center;
+}
+@keyframes modalSlide {
+    from { transform: translateY(-40px); opacity: 0; }
+    to   { transform: translateY(0);     opacity: 1; }
+}
+.modal h3        { color: #2c3e50; margin-bottom: 12px; font-size: 1.3em; }
+.modal p         { color: #7f8c8d; margin-bottom: 22px; line-height: 1.5; }
+.modal-buttons   { display: flex; gap: 12px; justify-content: center; }
+.modal-btn       { padding: 11px 24px; border: none; border-radius: 25px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
+.modal-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+.modal-btn.confirm { background: #e74c3c; color: white; }
+.modal-btn.cancel  { background: #95a5a6; color: white; }
+
+/* ── Botón volver ──────────────────────────────────────────── */
+.back-button {
+    position: fixed;
+    top: 20px; left: 20px;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.92);
+    color: #2c3e50;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95em;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.back-button:hover { background: white; transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,0.2); }
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .container              { grid-template-columns: 1fr; gap: 20px; }
+    .header                 { grid-column: 1; }
+    .patient-details-grid   { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+    .patient-card-header    { flex-direction: column; }
+    .form-actions           { flex-direction: column; }
 }
 </style>
 </head>
-
 <body>
 
-<button onclick="goBack()" style="position: fixed; top: 20px; left: 20px; padding: 12px 20px; background: #3498db; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">← Regresar</button>
+<button class="back-button" onclick="goBack()">← Regresar</button>
 
 <div class="container">
+
+    <!-- ── Cabecera ──────────────────────────────────────────── -->
     <div class="header">
         <h1>💊 Gestión de Tratamientos</h1>
-        <p>Sistema hospitalario</p>
+        <p>Sistema hospitalario SmartClinic</p>
     </div>
 
-    <!-- PANEL DE DATOS DEL EXPEDIENTE -->
-    <div id="patientPanel" class="patient-card" style="display:none;">
-        <div class="patient-card-header">
-            <div>
-                <div class="patient-name" id="patientName">-</div>
-                <div class="patient-expediente">📄 Expediente: <span id="patientExpediente">-</span></div>
-            </div>
-            <div id="patientPriority" class="priority-badge priority-media">MEDIA</div>
-        </div>
-        <div class="patient-details-grid">
-            <div>
-                <h3 style="margin-bottom: 15px; color: white; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px;">Datos Personales</h3>
-                <div class="detail-row">
-                    <div class="detail-label">🆔 Cédula</div>
-                    <div class="detail-value" id="patientCedula">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">📞 Teléfono</div>
-                    <div class="detail-value" id="patientPhone">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">📅 Edad</div>
-                    <div class="detail-value" id="patientAge">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">⚧ Sexo</div>
-                    <div class="detail-value" id="patientSexo">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">📧 Email</div>
-                    <div class="detail-value" id="patientEmail">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">📝 Dirección</div>
-                    <div class="detail-value" id="patientDireccion">-</div>
-                </div>
-            </div>
-            <div>
-                <h3 style="margin-bottom: 15px; color: white; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px;">Datos de Consulta</h3>
-                <div class="detail-row">
-                    <div class="detail-label">🩺 Motivo de Consulta</div>
-                    <div class="detail-value" id="patientMotivo">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">🤒 Síntomas</div>
-                    <div class="detail-value" id="patientSintomas">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">🦠 Enfermedades Previas</div>
-                    <div class="detail-value" id="patientEnfermedades">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">💊 Medicamentos Tomados</div>
-                    <div class="detail-value" id="patientMedicamentos">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">📅 Fecha de Registro</div>
-                    <div class="detail-value" id="patientFechaRegistro">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">📊 Estado</div>
-                    <div class="detail-value" id="patientEstado">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">⚡ Urgencia</div>
-                    <div class="detail-value" id="patientUrgencia">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">📅 Fecha de Cierre</div>
-                    <div class="detail-value" id="patientFechaCierre">-</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">👨‍⚕️ Recepcionista</div>
-                    <div class="detail-value" id="patientRecepcionista">-</div>
-                </div>
-            </div>
+    <!-- ── Panel de datos del paciente / expediente ─────────── -->
+    <div id="patientPanel">
+        <!-- Estado de carga inicial -->
+        <div class="loading-state" id="loadingState">
+            <div class="spinner"></div>
+            <span>Cargando datos del expediente…</span>
         </div>
     </div>
 
-    <!-- FORMULARIO DE TRATAMIENTO -->
-    <div id="treatmentForm" class="treatment-form" style="display:none;">
-        <div class="treatment-header">
-            <h2>💊 Registrar Tratamiento</h2>
+    <!-- ── Formulario de tratamiento ─────────────────────────── -->
+    <div id="treatmentFormContainer" style="display:none;" class="treatment-form">
+        <h2>💊 Registrar Tratamiento</h2>
+
+        <label for="diagnostico">Diagnóstico:</label>
+        <textarea id="diagnostico"
+                  placeholder="Describa el diagnóstico médico del paciente"
+                  required></textarea>
+
+        <label for="tratamiento">Tratamiento:</label>
+        <textarea id="tratamiento"
+                  placeholder="Describa el tratamiento a aplicar (medicamentos, dosis, indicaciones)"
+                  required></textarea>
+
+        <div class="form-actions">
+            <button class="btn btn-success"  onclick="guardarTratamiento()">
+                💾 Guardar Tratamiento
+            </button>
+            <button class="btn btn-primary"  onclick="abrirModalCerrar()">
+                🔒 Cerrar Expediente
+            </button>
         </div>
-        <form id="treatmentFormElement">
-            <label for="diagnostico">Diagnóstico:</label><br>
-            <textarea id="diagnostico" placeholder="Describa el diagnóstico médico" required></textarea><br><br>
+    </div>
 
-            <label for="tratamiento">Tratamiento:</label><br>
-            <textarea id="tratamiento" placeholder="Describa el tratamiento a aplicar" required></textarea><br><br>
+</div><!-- /container -->
 
-            <button type="button" class="btn-success" onclick="save()">Guardar Tratamiento</button>
-            <button type="button" class="btn-primary" onclick="cerrarExpediente()">Cerrar Expediente</button>
-        </form>
+<!-- ── Modal de confirmación: cerrar expediente ─────────────── -->
+<div class="modal-overlay" id="modalCerrar">
+    <div class="modal">
+        <h3>⚠️ Confirmar cierre</h3>
+        <p>¿Está seguro de que desea cerrar este expediente?<br>
+           Esta acción no se puede deshacer.</p>
+        <div class="modal-buttons">
+            <button class="modal-btn confirm" onclick="cerrarExpediente()">Sí, cerrar</button>
+            <button class="modal-btn cancel"  onclick="cerrarModal()">Cancelar</button>
+        </div>
     </div>
 </div>
 
-<!-- MODAL (removido, ahora inline) -->
-
 <script>
-let treatments = JSON.parse(localStorage.getItem("treatments")||"[]");
-let editId = null;
-let currentPatient = null;
+// ── Estado global ─────────────────────────────────────────────
+let currentPatient      = null;
 let currentExpedienteId = null;
 
-// Función para hacer requests autenticadas
+// ─────────────────────────────────────────────────────────────
+// FETCH AUTENTICADO
+// ─────────────────────────────────────────────────────────────
 function authenticatedFetch(url, options = {}) {
     const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = 'login.html';
-        return Promise.reject('No token');
-    }
-
-    const defaultOptions = {
+    if (!token) { window.location.href = 'login.html'; return Promise.reject('No token'); }
+    return fetch(url, {
+        ...options,
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
             ...options.headers
-        },
-        ...options
-    };
-
-    return fetch(url, defaultOptions);
-}
-
-// Cargar datos del expediente al iniciar
-async function loadPatientData() {
-    // Obtener ID del expediente de la URL o sessionStorage
-    const urlParams = new URLSearchParams(window.location.search);
-    const idExpediente = urlParams.get('idExpediente') || sessionStorage.getItem('currentExpedienteId');
-    
-    if (idExpediente) {
-        try {
-            const response = await authenticatedFetch(`http://localhost:5000/api/pacientes/expediente/${idExpediente}`);
-            if (response.ok) {
-                currentPatient = await response.json();
-                currentExpedienteId = idExpediente;
-                displayPatientInfo();
-            } else {
-                console.error('Error al cargar expediente:', response.status);
-                document.getElementById('patientPanel').innerHTML = '<p>Error al cargar datos del expediente.</p>';
-            }
-        } catch (error) {
-            console.error('Error al cargar datos del expediente:', error);
-            document.getElementById('patientPanel').innerHTML = '<p>Error al conectar con el servidor.</p>';
         }
-    } else {
-        document.getElementById('patientPanel').innerHTML = '<p>No se ha seleccionado un expediente para tratar.</p>';
-    }
-}
-
-// Mostrar información del paciente en la tarjeta
-function displayPatientInfo() {
-    if (!currentPatient) return;
-    
-    const panel = document.getElementById('patientPanel');
-    panel.style.display = 'block';
-    
-    // Mapear urgencia a prioridad
-    const priorityMap = {
-        1: 'alta',
-        2: 'media', 
-        3: 'baja'
-    };
-    const priority = priorityMap[currentPatient.urgencia] || 'media';
-    
-    // Llenar los datos
-    document.getElementById('patientName').textContent = `${currentPatient.nombre} ${currentPatient.apellido}` || '-';
-    document.getElementById('patientExpediente').textContent = `EXP-${new Date().getFullYear()}-${currentPatient.idExpediente.toString().padStart(4, '0')}`;
-    document.getElementById('patientCedula').textContent = currentPatient.dni || '-';
-    document.getElementById('patientPhone').textContent = currentPatient.telefono || '-';
-    document.getElementById('patientAge').textContent = (currentPatient.edad || '-') + ' años';
-    document.getElementById('patientSexo').textContent = currentPatient.sexo === 'M' ? 'Masculino' : 'Femenino';
-    document.getElementById('patientEmail').textContent = currentPatient.email || 'No registrado';
-    document.getElementById('patientMotivo').textContent = currentPatient.motivoConsulta || '-';
-    document.getElementById('patientSintomas').textContent = currentPatient.motivoConsulta || '-'; // Assuming sintomas is motivoConsulta
-    document.getElementById('patientEnfermedades').textContent = '-'; // Not in DB
-    document.getElementById('patientMedicamentos').textContent = '-'; // Not in DB
-    document.getElementById('patientFechaRegistro').textContent = currentPatient.fechaRegistro ? new Date(currentPatient.fechaRegistro).toLocaleString('es-ES') : '-';
-    document.getElementById('patientEstado').textContent = currentPatient.estado || '-';
-    document.getElementById('patientUrgencia').textContent = currentPatient.urgencia ? `Nivel ${currentPatient.urgencia}` : '-';
-    document.getElementById('patientFechaCierre').textContent = currentPatient.fechaCierre ? new Date(currentPatient.fechaCierre).toLocaleString('es-ES') : 'No cerrado';
-    document.getElementById('patientDireccion').textContent = currentPatient.direccion || '-';
-    document.getElementById('patientRecepcionista').textContent = currentPatient.recepcionista || '-';
-    
-    // Actualizar badge de prioridad
-    const badgeElement = document.getElementById('patientPriority');
-    badgeElement.className = `priority-badge priority-${priority}`;
-    badgeElement.textContent = priority.toUpperCase();
-
-    // Mostrar formulario de tratamiento
-    document.getElementById('treatmentForm').style.display = 'block';
-}
-
-function closeModal(){ /* removido */ }
-
-function save(){
-    if(!currentExpedienteId || !diagnostico.value || !tratamiento.value) {
-        return alert("Completa todos los campos requeridos");
-    }
-
-    const tratamientoData = {
-        idExpediente: currentExpedienteId,
-        diagnostico: diagnostico.value,
-        tratamiento: tratamiento.value
-    };
-
-    authenticatedFetch('http://localhost:5000/api/pacientes/tratamiento', {
-        method: 'POST',
-        body: JSON.stringify(tratamientoData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.mensaje) {
-            alert('Tratamiento registrado exitosamente');
-            // Limpiar formulario
-            diagnostico.value = '';
-            tratamiento.value = '';
-        } else {
-            alert('Error: ' + (data.error || 'Error desconocido'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al registrar tratamiento');
     });
 }
 
-function cerrarExpediente(){
-    if(!currentExpedienteId) {
-        return alert("No hay expediente seleccionado");
+// ─────────────────────────────────────────────────────────────
+// NOTIFICACIONES
+// ─────────────────────────────────────────────────────────────
+function showNotification(message, type = 'success') {
+    const n       = document.createElement('div');
+    n.className   = `notification ${type}`;
+    n.textContent = message;
+    document.body.appendChild(n);
+    setTimeout(() => {
+        n.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => n.parentNode?.removeChild(n), 300);
+    }, 3500);
+}
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS PARA RENDERIZAR TAGS
+// Recibe un array de strings y devuelve HTML de etiquetas
+// ─────────────────────────────────────────────────────────────
+function renderTags(items, claseTag) {
+    if (!Array.isArray(items) || items.length === 0)
+        return '<span class="tag-empty">No registrados</span>';
+    return `<div class="tag-list-display">
+        ${items.map(i => `<span class="tag-display ${claseTag}">${i}</span>`).join('')}
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// CARGAR DATOS DEL EXPEDIENTE
+// El endpoint GET /expediente/:id ya devuelve:
+//   { ...datosExpediente, sintomas: [], medicamentos: [] }
+// Luego se hace una segunda llamada para obtener alergias del paciente.
+// ─────────────────────────────────────────────────────────────
+async function loadPatientData() {
+    const urlParams    = new URLSearchParams(window.location.search);
+    const idExpediente = urlParams.get('idExpediente') ||
+                         sessionStorage.getItem('currentExpedienteId');
+
+    const panel = document.getElementById('patientPanel');
+
+    if (!idExpediente) {
+        panel.innerHTML = `
+            <div class="error-state">
+                <p>⚠️ No se ha seleccionado un expediente.<br>
+                   Por favor regrese a la lista de espera.</p>
+            </div>`;
+        return;
     }
 
-    if(confirm("¿Está seguro de cerrar este expediente?")) {
-        (async () => {
-            try {
-                const response = await authenticatedFetch(`http://localhost:5000/api/pacientes/expediente/${currentExpedienteId}/cerrar`, {
-                    method: 'PUT'
-                });
+    try {
+        // 1. Obtener expediente (incluye sintomas[] y medicamentos[] normalizados)
+        const expRes = await authenticatedFetch(
+            `http://localhost:5000/api/pacientes/expediente/${idExpediente}`
+        );
 
-                if (!response.ok) {
-                    const body = await response.text();
-                    console.error('Cerrar expediente error:', response.status, body);
-                    return alert('Error al cerrar expediente: ' + response.status);
-                }
+        if (!expRes.ok) {
+            throw new Error(`Error ${expRes.status} al obtener expediente`);
+        }
 
-                const contentType = response.headers.get('content-type') || '';
-                let data;
-                if (contentType.includes('application/json')) {
-                    data = await response.json();
-                } else {
-                    data = { mensaje: await response.text() };
-                }
+        const expediente = await expRes.json();
+        currentExpedienteId = idExpediente;
 
-                if (data.mensaje) {
-                    alert('Expediente cerrado exitosamente');
-                    window.location.href = 'index.html';
-                } else {
-                    alert('Error: ' + (data.error || data.mensaje || 'Error desconocido'));
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al cerrar expediente: ' + error.message);
+        // 2. Obtener alergias del paciente (tabla PacienteAlergia)
+        //    El endpoint GET /paciente/:dni devuelve { ...datosPaciente, alergias: [] }
+        let alergias = [];
+        try {
+            const pacRes = await authenticatedFetch(
+                `http://localhost:5000/api/pacientes/paciente/${expediente.dni}`
+            );
+            if (pacRes.ok) {
+                const pacData = await pacRes.json();
+                alergias = pacData.alergias || [];
             }
-        })();
+        } catch { /* Si falla, se muestra vacío — no es crítico */ }
+
+        // Combinar todo en el objeto currentPatient
+        currentPatient = { ...expediente, alergias };
+
+        displayPatientInfo();
+
+    } catch (error) {
+        console.error('Error cargando expediente:', error);
+        panel.innerHTML = `
+            <div class="error-state">
+                <p>❌ Error al cargar los datos del expediente.<br>
+                   <small>${error.message}</small></p>
+            </div>`;
     }
 }
 
-function goBack(){
-    window.location.href="index.html";
+// ─────────────────────────────────────────────────────────────
+// MOSTRAR INFORMACIÓN DEL PACIENTE
+// Renderiza la tarjeta con los datos del expediente + arrays
+// normalizados de sintomas, medicamentos y alergias.
+// ─────────────────────────────────────────────────────────────
+function displayPatientInfo() {
+    if (!currentPatient) return;
+
+    const priorityMap = { 1: 'alta', 2: 'media', 3: 'baja' };
+    const priority    = priorityMap[currentPatient.urgencia] || 'media';
+    const urgenciaLabel = { 1: '🔴 Alta', 2: '🟡 Media', 3: '🟢 Baja' };
+
+    // ── Síntomas → tabla ExpedienteSintoma (array normalizado) ──
+    const sintomasHTML = renderTags(currentPatient.sintomas, 'tag-sintoma');
+
+    // ── Medicamentos → tabla ExpedienteMedicamento (array normalizado) ──
+    const medicamentosHTML = renderTags(currentPatient.medicamentos, 'tag-medic');
+
+    // ── Alergias → tabla PacienteAlergia (array normalizado) ────
+    const alergiasHTML = renderTags(currentPatient.alergias, 'tag-alergia');
+
+    const expNumero = `EXP-${new Date().getFullYear()}-${
+        String(currentPatient.idExpediente).padStart(4, '0')
+    }`;
+
+    const fechaRegistro = currentPatient.fechaRegistro
+        ? new Date(currentPatient.fechaRegistro).toLocaleString('es-ES')
+        : '-';
+    const fechaCierre = currentPatient.fechaCierre
+        ? new Date(currentPatient.fechaCierre).toLocaleString('es-ES')
+        : 'No cerrado';
+
+    document.getElementById('patientPanel').innerHTML = `
+        <div class="patient-card">
+            <!-- Cabecera: nombre + número de expediente + badge prioridad -->
+            <div class="patient-card-header">
+                <div>
+                    <div class="patient-name">
+                        ${currentPatient.nombre} ${currentPatient.apellido}
+                    </div>
+                    <div class="patient-expediente">📄 Expediente: ${expNumero}</div>
+                </div>
+                <div class="priority-badge priority-${priority}">
+                    ${priority.toUpperCase()}
+                </div>
+            </div>
+
+            <div class="patient-details-grid">
+
+                <!-- ── Columna izquierda: datos personales ──── -->
+                <div class="details-column">
+                    <h3>👤 Datos Personales</h3>
+
+                    <div class="detail-row">
+                        <div class="detail-label">🆔 Cédula</div>
+                        <div class="detail-value">${currentPatient.dni || '-'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">📅 Edad</div>
+                        <div class="detail-value">${currentPatient.edad ? currentPatient.edad + ' años' : '-'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">⚧ Sexo</div>
+                        <div class="detail-value">
+                            ${currentPatient.sexo === 'M' ? 'Masculino'
+                              : currentPatient.sexo === 'F' ? 'Femenino' : '-'}
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">📞 Teléfono</div>
+                        <div class="detail-value">${currentPatient.telefono || '-'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">📧 Email</div>
+                        <div class="detail-value">${currentPatient.email || 'No registrado'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">📝 Dirección</div>
+                        <div class="detail-value">${currentPatient.direccion || '-'}</div>
+                    </div>
+
+                    <!-- NUEVO ▸ Alergias desde tabla PacienteAlergia -->
+                    <div class="detail-row">
+                        <div class="detail-label">⚠️ Alergias</div>
+                        <div class="detail-value">${alergiasHTML}</div>
+                    </div>
+                </div>
+
+                <!-- ── Columna derecha: datos de la consulta ─── -->
+                <div class="details-column">
+                    <h3>🩺 Datos de la Consulta</h3>
+
+                    <div class="detail-row">
+                        <div class="detail-label">🩺 Motivo de Consulta</div>
+                        <div class="detail-value">${currentPatient.motivoConsulta || '-'}</div>
+                    </div>
+
+                    <!-- ACTUALIZADO ▸ Síntomas desde tabla ExpedienteSintoma (array) -->
+                    <div class="detail-row">
+                        <div class="detail-label">🤒 Síntomas</div>
+                        <div class="detail-value">${sintomasHTML}</div>
+                    </div>
+
+                    <!-- ACTUALIZADO ▸ Medicamentos desde tabla ExpedienteMedicamento (array) -->
+                    <div class="detail-row">
+                        <div class="detail-label">💊 Medicamentos Actuales</div>
+                        <div class="detail-value">${medicamentosHTML}</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">📅 Fecha de Registro</div>
+                        <div class="detail-value">${fechaRegistro}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">📊 Estado</div>
+                        <div class="detail-value">${currentPatient.estado || '-'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">⚡ Urgencia</div>
+                        <div class="detail-value">
+                            ${urgenciaLabel[currentPatient.urgencia] || `Nivel ${currentPatient.urgencia}`}
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">📅 Fecha de Cierre</div>
+                        <div class="detail-value">${fechaCierre}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">👨‍⚕️ Recepcionista</div>
+                        <div class="detail-value">${currentPatient.recepcionista || '-'}</div>
+                    </div>
+                </div>
+
+            </div><!-- /patient-details-grid -->
+        </div><!-- /patient-card -->
+    `;
+
+    // Mostrar el formulario de tratamiento
+    document.getElementById('treatmentFormContainer').style.display = 'flex';
 }
 
+// ─────────────────────────────────────────────────────────────
+// GUARDAR TRATAMIENTO
+// POST /api/pacientes/tratamiento
+// ─────────────────────────────────────────────────────────────
+async function guardarTratamiento() {
+    const diagnosticoVal = document.getElementById('diagnostico').value.trim();
+    const tratamientoVal = document.getElementById('tratamiento').value.trim();
+
+    if (!currentExpedienteId) {
+        showNotification('No hay expediente seleccionado', 'error');
+        return;
+    }
+    if (!diagnosticoVal || !tratamientoVal) {
+        showNotification('Por favor complete diagnóstico y tratamiento', 'error');
+        return;
+    }
+
+    try {
+        const response = await authenticatedFetch(
+            'http://localhost:5000/api/pacientes/tratamiento',
+            {
+                method: 'POST',
+                body: JSON.stringify({
+                    idExpediente: currentExpedienteId,
+                    diagnostico:  diagnosticoVal,
+                    tratamiento:  tratamientoVal
+                })
+            }
+        );
+        const data = await response.json();
+
+        if (response.ok) {
+            showNotification('✅ Tratamiento registrado exitosamente', 'success');
+            // Limpiar campos para registrar otro tratamiento si es necesario
+            document.getElementById('diagnostico').value = '';
+            document.getElementById('tratamiento').value = '';
+        } else {
+            showNotification(data.mensaje || 'Error al registrar tratamiento', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('No se pudo conectar con el servidor', 'error');
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// GUARDAR Y CERRAR (operación atómica — usa sp_RegTratamientoYCerrar)
+// POST /api/transacciones/cerrar
+// ─────────────────────────────────────────────────────────────
+async function guardarYCerrar() {
+    const diagnosticoVal = document.getElementById('diagnostico').value.trim();
+    const tratamientoVal = document.getElementById('tratamiento').value.trim();
+
+    if (!currentExpedienteId) {
+        showNotification('No hay expediente seleccionado', 'error');
+        return;
+    }
+    if (!diagnosticoVal || !tratamientoVal) {
+        showNotification('Complete diagnóstico y tratamiento antes de cerrar', 'error');
+        return;
+    }
+
+    try {
+        const response = await authenticatedFetch(
+            'http://localhost:5000/api/transacciones/cerrar',
+            {
+                method: 'POST',
+                body: JSON.stringify({
+                    idExpediente: currentExpedienteId,
+                    diagnostico:  diagnosticoVal,
+                    tratamiento:  tratamientoVal
+                })
+            }
+        );
+        const data = await response.json();
+
+        if (response.ok) {
+            showNotification('✅ ' + (data.mensaje || 'Tratamiento registrado y expediente cerrado'), 'success');
+            setTimeout(() => { window.location.href = 'index.html'; }, 1800);
+        } else {
+            const status = response.status;
+            if (status === 400) showNotification('⚠️ ' + data.mensaje, 'error');
+            else if (status === 404) showNotification('❌ Expediente no encontrado', 'error');
+            else showNotification(data.mensaje || 'Error en la operación', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('No se pudo conectar con el servidor', 'error');
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// CERRAR EXPEDIENTE (solo cierre, sin tratamiento nuevo)
+// PUT /api/pacientes/expediente/:id/cerrar
+// ─────────────────────────────────────────────────────────────
+function abrirModalCerrar() {
+    if (!currentExpedienteId) {
+        showNotification('No hay expediente seleccionado', 'error');
+        return;
+    }
+    document.getElementById('modalCerrar').classList.add('active');
+}
+
+function cerrarModal() {
+    document.getElementById('modalCerrar').classList.remove('active');
+}
+
+async function cerrarExpediente() {
+    cerrarModal();
+
+    try {
+        const response = await authenticatedFetch(
+            `http://localhost:5000/api/pacientes/expediente/${currentExpedienteId}/cerrar`,
+            { method: 'PUT' }
+        );
+
+        const contentType = response.headers.get('content-type') || '';
+        const data = contentType.includes('application/json')
+            ? await response.json()
+            : { mensaje: await response.text() };
+
+        if (response.ok) {
+            showNotification('✅ Expediente cerrado exitosamente', 'success');
+            setTimeout(() => { window.location.href = 'index.html'; }, 1800);
+        } else {
+            showNotification(data.mensaje || `Error ${response.status} al cerrar expediente`, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('No se pudo conectar con el servidor', 'error');
+    }
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('modalCerrar').addEventListener('click', function (e) {
+    if (e.target === this) cerrarModal();
+});
+
+// ─────────────────────────────────────────────────────────────
+// NAVEGACIÓN
+// ─────────────────────────────────────────────────────────────
+function goBack() { window.location.href = 'index.html'; }
+
+// ─────────────────────────────────────────────────────────────
+// INICIO
+// ─────────────────────────────────────────────────────────────
 loadPatientData();
 </script>
 

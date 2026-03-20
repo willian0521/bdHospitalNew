@@ -33,7 +33,7 @@
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         .header {
@@ -50,32 +50,19 @@
         .header::before {
             content: '';
             position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
+            top: -50%; right: -50%;
+            width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
             animation: pulse 3s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
+            0%, 100% { transform: scale(1);   opacity: 0.5; }
+            50%       { transform: scale(1.1); opacity: 0.8; }
         }
 
-        .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-            position: relative;
-            z-index: 2;
-        }
+        .header h1 { font-size: 2.2em; margin-bottom: 10px; position: relative; z-index: 2; }
+        .header p  { font-size: 1.1em; opacity: 0.9; position: relative; z-index: 2; }
 
         .form-section {
             margin-bottom: 30px;
@@ -100,14 +87,8 @@
             gap: 20px;
         }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
+        .form-group            { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: 1 / -1; }
 
         label {
             font-weight: 600;
@@ -118,9 +99,7 @@
             gap: 5px;
         }
 
-        .required {
-            color: #e74c3c;
-        }
+        .required { color: #e74c3c; }
 
         input, select, textarea {
             padding: 12px 15px;
@@ -137,11 +116,123 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
+        textarea { resize: vertical; min-height: 100px; }
 
+        /* ── Tag input ──────────────────────────────────────────── */
+        .tag-input-wrapper {
+            border: 2px solid #e8f4fd;
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: white;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-height: 48px;
+            cursor: text;
+            transition: border-color 0.3s;
+        }
+        .tag-input-wrapper:focus-within {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52,152,219,0.1);
+        }
+        .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag {
+            background: #e8f4fd;
+            color: #2c3e50;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.88em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+        .tag-alergia { background: #fdf2e9; border: 1px solid #f39c12; color: #784212; }
+        .tag-sintoma { background: #eaf4fb; border: 1px solid #3498db; color: #1a5276; }
+        .tag-medic   { background: #eafaf1; border: 1px solid #27ae60; color: #1d6a3a; }
+        .tag-remove  {
+            cursor: pointer;
+            color: #e74c3c;
+            font-weight: bold;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+            font-size: 1em;
+        }
+        .tag-remove:hover { color: #c0392b; }
+        .tag-input {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            padding: 4px 0 !important;
+            flex: 1;
+            min-width: 160px;
+            font-size: 15px;
+            background: transparent;
+        }
+        .field-hint { color: #95a5a6; font-size: 0.82em; margin-top: 4px; display: block; }
+
+        /* ── Bloque alergias en resumen de paciente ─────────────── */
+        .alergias-block {
+            margin-top: 14px;
+            padding: 14px;
+            background: #fff8f0;
+            border-left: 4px solid #f39c12;
+            border-radius: 8px;
+        }
+        .alergias-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .tag-readonly { background: #fdf2e9; border: 1px solid #f39c12; color: #784212; }
+        .no-alergias  { color: #95a5a6; font-size: 0.9em; font-style: italic; }
+        .nuevas-alergias-form {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #f39c12;
+        }
+        .nuevas-alergias-actions { display: flex; gap: 10px; margin-top: 8px; }
+        .btn-toggle-nuevas {
+            background: none;
+            border: 1px solid #f39c12;
+            color: #e67e22;
+            padding: 4px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-toggle-nuevas:hover { background: #f39c12; color: white; }
+        .btn-guardar-alergias {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn-guardar-alergias:hover { background: #229954; }
+        .btn-cancelar-alergias {
+            background: none;
+            border: 1px solid #95a5a6;
+            color: #7f8c8d;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-cancelar-alergias:hover { background: #95a5a6; color: white; }
+
+        /* ── Priority selector ──────────────────────────────────── */
         .priority-selector {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -159,44 +250,21 @@
             background: white;
         }
 
-        .priority-option:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
+        .priority-option:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .priority-option.selected { border-color: #3498db; background: #e8f4fd; }
 
-        .priority-option.selected {
-            border-color: #3498db;
-            background: #e8f4fd;
-        }
-
-        .priority-alta { border-left: 5px solid #e74c3c; }
+        .priority-alta  { border-left: 5px solid #e74c3c; }
         .priority-media { border-left: 5px solid #f39c12; }
-        .priority-baja { border-left: 5px solid #27ae60; }
+        .priority-baja  { border-left: 5px solid #27ae60; }
 
-        .priority-option.selected.priority-alta { 
-            background: #fdf2f2; 
-            border-color: #e74c3c;
-        }
-        .priority-option.selected.priority-media { 
-            background: #fdf8f2; 
-            border-color: #f39c12;
-        }
-        .priority-option.selected.priority-baja { 
-            background: #f2fdf7; 
-            border-color: #27ae60;
-        }
+        .priority-option.selected.priority-alta  { background: #fdf2f2; border-color: #e74c3c; }
+        .priority-option.selected.priority-media { background: #fdf8f2; border-color: #f39c12; }
+        .priority-option.selected.priority-baja  { background: #f2fdf7; border-color: #27ae60; }
 
-        .priority-title {
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
+        .priority-title       { font-weight: bold; font-size: 1.1em; margin-bottom: 5px; }
+        .priority-description { font-size: 0.9em; color: #7f8c8d; }
 
-        .priority-description {
-            font-size: 0.9em;
-            color: #7f8c8d;
-        }
-
+        /* ── Expediente preview ─────────────────────────────────── */
         .expediente-preview {
             background: linear-gradient(45deg, #f8f9fa, #e9ecef);
             border-radius: 10px;
@@ -204,19 +272,10 @@
             margin-top: 15px;
             text-align: center;
         }
+        .expediente-number { font-size: 2em; font-weight: bold; color: #3498db; margin-bottom: 5px; }
+        .expediente-label  { color: #7f8c8d; font-size: 0.9em; }
 
-        .expediente-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #3498db;
-            margin-bottom: 5px;
-        }
-
-        .expediente-label {
-            color: #7f8c8d;
-            font-size: 0.9em;
-        }
-
+        /* ── Botones principales ────────────────────────────────── */
         .form-actions {
             display: flex;
             gap: 15px;
@@ -237,35 +296,16 @@
             min-width: 150px;
             font-size: 16px;
         }
+        .btn-primary   { background: linear-gradient(45deg, #3498db, #2980b9); color: white; }
+        .btn-secondary { background: linear-gradient(45deg, #95a5a6, #7f8c8d); color: white; }
+        .btn-danger    { background: linear-gradient(45deg, #e74c3c, #c0392b); color: white; }
+        .btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+        .btn:active { transform: translateY(0); }
 
-        .btn-primary {
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
-            color: white;
-        }
-
-        .btn-danger {
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
+        /* ── Notificaciones ─────────────────────────────────────── */
         .notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 20px; right: 20px;
             padding: 15px 20px;
             border-radius: 10px;
             color: white;
@@ -275,30 +315,17 @@
             word-wrap: break-word;
             animation: slideIn 0.3s ease-out;
         }
+        .notification.success { background: linear-gradient(45deg, #27ae60, #2ecc71); }
+        .notification.error   { background: linear-gradient(45deg, #e74c3c, #c0392b); }
 
-        .notification.success {
-            background: linear-gradient(45deg, #27ae60, #2ecc71);
-        }
+        @keyframes slideIn  { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 
-        .notification.error {
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-
+        /* ── Botón volver ───────────────────────────────────────── */
         .back-button {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.9);
+            top: 20px; left: 20px;
+            background: rgba(255,255,255,0.9);
             border: none;
             padding: 15px 20px;
             border-radius: 25px;
@@ -311,13 +338,9 @@
             align-items: center;
             gap: 8px;
         }
+        .back-button:hover { background: white; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
 
-        .back-button:hover {
-            background: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
-
+        /* ── Checkbox ───────────────────────────────────────────── */
         .checkbox-container {
             display: flex;
             align-items: center;
@@ -328,22 +351,10 @@
             border-radius: 10px;
             border-left: 4px solid #3498db;
         }
+        .checkbox-container input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; margin: 0; padding: 0; }
+        .checkbox-container label                  { margin: 0; cursor: pointer; font-size: 1.05em; color: #2c3e50; }
 
-        .checkbox-container input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            margin: 0;
-            padding: 0;
-        }
-
-        .checkbox-container label {
-            margin: 0;
-            cursor: pointer;
-            font-size: 1.05em;
-            color: #2c3e50;
-        }
-
+        /* ── Búsqueda por DNI ───────────────────────────────────── */
         .search-dni-section {
             display: none;
             padding: 25px;
@@ -352,23 +363,10 @@
             background: #fafcff;
             margin-bottom: 30px;
         }
+        .search-dni-section.active { display: block; }
 
-        .search-dni-section.active {
-            display: block;
-        }
-
-        .search-dni-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .search-dni-group input {
-            flex: 1;
-            min-width: 250px;
-        }
-
+        .search-dni-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-dni-group input  { flex: 1; min-width: 250px; }
         .search-dni-group button {
             padding: 12px 25px;
             background: #3498db;
@@ -379,16 +377,10 @@
             font-weight: 600;
             transition: all 0.3s ease;
         }
+        .search-dni-group button:hover { background: #2980b9; transform: translateY(-2px); }
+        .search-results { margin-top: 20px; }
 
-        .search-dni-group button:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .search-results {
-            margin-top: 20px;
-        }
-
+        /* ── Resultado de búsqueda ──────────────────────────────── */
         .patient-result {
             background: white;
             border: 2px solid #27ae60;
@@ -396,84 +388,30 @@
             padding: 20px;
             margin-bottom: 15px;
         }
-
-        .patient-result h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
+        .patient-result h3 { color: #2c3e50; margin-bottom: 10px; }
         .patient-info {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 15px;
         }
+        .patient-info-item          { background: #f8f9fa; padding: 10px; border-radius: 5px; }
+        .patient-info-item strong   { color: #34495e; display: block; font-size: 0.9em; margin-bottom: 3px; }
+        .patient-info-item span     { color: #2c3e50; }
+        .patient-actions            { display: flex; gap: 10px; }
+        .patient-actions button     { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+        .btn-select                 { background: #27ae60; color: white; }
+        .btn-select:hover           { background: #229954; }
+        .btn-cancel                 { background: #95a5a6; color: white; }
+        .btn-cancel:hover           { background: #7f8c8d; }
 
-        .patient-info-item {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-        }
+        /* ── Visibilidad de formularios ─────────────────────────── */
+        .form-content          { display: block; }
+        .form-content.hidden   { display: none; }
+        .consultation-form     { display: none; }
+        .consultation-form.active { display: block; }
 
-        .patient-info-item strong {
-            color: #34495e;
-            display: block;
-            font-size: 0.9em;
-            margin-bottom: 3px;
-        }
-
-        .patient-info-item span {
-            color: #2c3e50;
-        }
-
-        .patient-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .patient-actions button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-select {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-select:hover {
-            background: #229954;
-        }
-
-        .btn-cancel {
-            background: #95a5a6;
-            color: white;
-        }
-
-        .btn-cancel:hover {
-            background: #7f8c8d;
-        }
-
-        .form-content {
-            display: block;
-        }
-
-        .form-content.hidden {
-            display: none;
-        }
-
-        .consultation-form {
-            display: none;
-        }
-
-        .consultation-form.active {
-            display: block;
-        }
-
+        /* ── Resumen paciente ───────────────────────────────────── */
         .patient-summary {
             background: linear-gradient(45deg, #e8f4fd, #f0f8ff);
             border-left: 5px solid #3498db;
@@ -481,46 +419,20 @@
             border-radius: 10px;
             margin-bottom: 30px;
         }
-
-        .patient-summary h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .patient-summary h3 { color: #2c3e50; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         .patient-summary-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
         }
+        .patient-summary-item         { background: white; padding: 10px 15px; border-radius: 5px; border: 1px solid #e8f4fd; }
+        .patient-summary-item strong  { color: #34495e; display: block; font-size: 0.9em; margin-bottom: 3px; }
+        .patient-summary-item span    { color: #2c3e50; font-weight: 500; }
 
-        .patient-summary-item {
-            background: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            border: 1px solid #e8f4fd;
-        }
-
-        .patient-summary-item strong {
-            color: #34495e;
-            display: block;
-            font-size: 0.9em;
-            margin-bottom: 3px;
-        }
-
-        .patient-summary-item span {
-            color: #2c3e50;
-            font-weight: 500;
-        }
-
+        /* ── Modal de éxito ─────────────────────────────────────── */
         .success-modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5);
             display: none;
             align-items: center;
@@ -528,7 +440,6 @@
             z-index: 1000;
             padding: 20px;
         }
-
         .success-content {
             background: white;
             padding: 40px;
@@ -538,75 +449,29 @@
             width: 100%;
             animation: modalSlide 0.3s ease-out;
         }
-
         @keyframes modalSlide {
             from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            to   { transform: translateY(0);     opacity: 1; }
         }
+        .success-icon       { font-size: 4em; color: #27ae60; margin-bottom: 20px; }
+        .success-title      { font-size: 1.5em; color: #2c3e50; margin-bottom: 15px; }
+        .success-expediente { font-size: 1.2em; color: #3498db; font-weight: bold; margin-bottom: 20px; }
 
-        .success-icon {
-            font-size: 4em;
-            color: #27ae60;
-            margin-bottom: 20px;
-        }
-
-        .success-title {
-            font-size: 1.5em;
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-
-        .success-expediente {
-            font-size: 1.2em;
-            color: #3498db;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
+        /* ── Responsive ─────────────────────────────────────────── */
         @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .priority-selector {
-                grid-template-columns: 1fr;
-            }
-
-            .form-actions {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .btn {
-                width: 100%;
-                max-width: 250px;
-            }
-
-            .header h1 {
-                font-size: 1.8em;
-            }
-
-            .back-button {
-                position: static;
-                margin-bottom: 20px;
-                align-self: flex-start;
-            }
-
-            body {
-                align-items: flex-start;
-                padding-top: 20px;
-            }
+            .container           { padding: 20px; }
+            .form-grid           { grid-template-columns: 1fr; }
+            .priority-selector   { grid-template-columns: 1fr; }
+            .form-actions        { flex-direction: column; align-items: center; }
+            .btn                 { width: 100%; max-width: 250px; }
+            .header h1           { font-size: 1.8em; }
+            .back-button         { position: static; margin-bottom: 20px; align-self: flex-start; }
+            body                 { align-items: flex-start; padding-top: 20px; }
         }
     </style>
 </head>
 <body>
-    <button class="back-button" onclick="goBack()">
-        ← Volver al Menú
-    </button>
+    <button class="back-button" onclick="goBack()">← Volver al Menú</button>
 
     <div class="container">
         <div class="header">
@@ -614,232 +479,237 @@
             <p>Complete todos los campos requeridos para registrar al paciente</p>
         </div>
 
+        <!-- ════════════════════════════════════════════════════════
+             FORMULARIO: PACIENTE NUEVO
+             ════════════════════════════════════════════════════════ -->
         <form id="patientForm">
-            <!-- Checkbox Paciente ya inscrito -->
+
+            <!-- Checkbox paciente ya inscrito -->
             <div class="checkbox-container">
                 <input type="checkbox" id="pacienteYaInscrito" name="pacienteYaInscrito">
                 <label for="pacienteYaInscrito">📌 Paciente ya está inscrito</label>
             </div>
 
-            <!-- Sección de búsqueda por DNI -->
+            <!-- Búsqueda por DNI (visible solo cuando checkbox activo) -->
             <div class="search-dni-section" id="searchDniSection">
-                <div class="section-title">
-                    <span>🔍</span> Buscar Paciente por DNI
-                </div>
+                <div class="section-title"><span>🔍</span> Buscar Paciente por DNI</div>
                 <div class="search-dni-group">
-                    <input type="text" id="buscarDni" placeholder="Ingrese el DNI del paciente (ej: 0801-1990-12345)" maxlength="16">
+                    <input type="text" id="buscarDni"
+                           placeholder="Ingrese el DNI del paciente (ej: 0801-1990-12345)"
+                           maxlength="16">
                     <button type="button" onclick="buscarPacientePorDni()">Buscar</button>
                 </div>
                 <div class="search-results" id="searchResults"></div>
             </div>
 
-            <!-- Contenido del formulario -->
+            <!-- Contenido del formulario de nuevo paciente -->
             <div class="form-content" id="formContent">
-            <!-- Información Personal -->
-            <div class="form-section">
-                <div class="section-title">
-                    <span>📋</span> Información Personal
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="nombres">
-                            Nombres <span class="required">*</span>
-                        </label>
-                        <input type="text" id="nombres" name="nombres" autocomplete="given-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="apellidos">
-                            Apellidos <span class="required">*</span>
-                        </label>
-                        <input type="text" id="apellidos" name="apellidos" autocomplete="family-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="dni">
-                            DNI <span class="required">*</span>
-                        </label>
-                        <input type="text" id="dni" name="dni" placeholder="Ej: 0801199012345" autocomplete="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fechaNacimiento">
-                            Fecha de Nacimiento <span class="required">*</span>
-                        </label>
-                        <input type="date" id="fechaNacimiento" name="fechaNacimiento" autocomplete="off" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edad">Edad</label>
-                        <input type="number" id="edad" name="edad" autocomplete="off" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="sexo">
-                            Sexo <span class="required">*</span>
-                        </label>
-                        <select id="sexo" name="sexo" autocomplete="sex" required>
-                            <option value="">Seleccione...</option>
-                            <option value="M">Masculino</option>
-                            <option value="F">Femenino</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="telefono">
-                            Teléfono <span class="required">*</span>
-                        </label>
-                        <input type="tel" id="telefono" name="telefono" placeholder="Ej: +504 9999-9999" autocomplete="tel" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" autocomplete="email">
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="direccion">
-                            Dirección Completa <span class="required">*</span>
-                        </label>
-                        <textarea id="direccion" name="direccion" placeholder="Ingrese la dirección completa del paciente..." autocomplete="address-line1" required></textarea>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Información Médica -->
-            <div class="form-section">
-                <div class="section-title">
-                    <span>🩺</span> Información Médica
-                </div>
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="motivoConsulta">
-                            Motivo de la Consulta <span class="required">*</span>
-                        </label>
-                        <textarea id="motivoConsulta" name="motivoConsulta" placeholder="Describa brevemente el motivo de la consulta..." required></textarea>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="sintomas">
-                            Síntomas Actuales <span class="required">*</span>
-                        </label>
-                        <textarea id="sintomas" name="sintomas" placeholder="Describa los síntomas que presenta el paciente..." required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="tiempoSintomas">
-                            Tiempo con Síntomas
-                        </label>
-                        <select id="tiempoSintomas" name="tiempoSintomas">
-                            <option value="">Seleccione...</option>
-                            <option value="Menos de 1 día">Menos de 1 día</option>
-                            <option value="1-3 días">1-3 días</option>
-                            <option value="4-7 días">4-7 días</option>
-                            <option value="1-2 semanas">1-2 semanas</option>
-                            <option value="Más de 2 semanas">Más de 2 semanas</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="alergias">Alergias Conocidas</label>
-                        <textarea id="alergias" name="alergias" placeholder="Medicamentos, alimentos, etc."></textarea>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="medicamentosActuales">Medicamentos Actuales</label>
-                        <textarea id="medicamentosActuales" name="medicamentosActuales" placeholder="Liste los medicamentos que está tomando actualmente..."></textarea>
-                    </div>
-                </div>
-            </div>
+                <!-- ── Sección: Información Personal ──────────── -->
+                <div class="form-section">
+                    <div class="section-title"><span>📋</span> Información Personal</div>
+                    <div class="form-grid">
 
-            <!-- Nivel de Prioridad -->
-            <div class="form-section">
-                <div class="section-title">
-                    <span>🚨</span> Nivel de Prioridad
-                </div>
-                <div class="priority-selector">
-                    <div class="priority-option priority-alta" data-priority="alta">
-                        <div class="priority-title">🔴 ALTA</div>
-                        <div class="priority-description">Emergencia médica, requiere atención inmediata</div>
-                    </div>
-                    <div class="priority-option priority-media" data-priority="media">
-                        <div class="priority-title">🟡 MEDIA</div>
-                        <div class="priority-description">Urgente, debe ser atendido pronto</div>
-                    </div>
-                    <div class="priority-option priority-baja" data-priority="baja">
-                        <div class="priority-title">🟢 BAJA</div>
-                        <div class="priority-description">Consulta general, puede esperar</div>
-                    </div>
-                </div>
-                <input type="hidden" id="prioridad" name="prioridad" required>
-            </div>
+                        <div class="form-group">
+                            <label for="nombres">Nombres <span class="required">*</span></label>
+                            <input type="text" id="nombres" name="nombres" autocomplete="given-name" required>
+                        </div>
 
-            <!-- Número de Expediente -->
-            <div class="form-section">
-                <div class="section-title">
-                    <span>📄</span> Número de Expediente
-                </div>
-                <div class="expediente-preview">
-                    <div class="expediente-number" id="expedienteNumber">EXP-2025-0001</div>
-                    <div class="expediente-label">Número de expediente generado automáticamente</div>
-                </div>
-            </div>
+                        <div class="form-group">
+                            <label for="apellidos">Apellidos <span class="required">*</span></label>
+                            <input type="text" id="apellidos" name="apellidos" autocomplete="family-name" required>
+                        </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    💾 Registrar Paciente
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
-                    🔄 Limpiar Formulario
-                </button>
-                <button type="button" class="btn btn-danger" onclick="goBack()">
-                    ❌ Cancelar
-                </button>
-            </div>
-            </div>
+                        <div class="form-group">
+                            <label for="dni">DNI <span class="required">*</span></label>
+                            <input type="text" id="dni" name="dni"
+                                   placeholder="Ej: 0801199012345" autocomplete="username" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fechaNacimiento">Fecha de Nacimiento <span class="required">*</span></label>
+                            <input type="date" id="fechaNacimiento" name="fechaNacimiento"
+                                   autocomplete="off" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edad">Edad</label>
+                            <input type="number" id="edad" name="edad" autocomplete="off" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sexo">Sexo <span class="required">*</span></label>
+                            <select id="sexo" name="sexo" autocomplete="sex" required>
+                                <option value="">Seleccione...</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefono">Teléfono <span class="required">*</span></label>
+                            <input type="tel" id="telefono" name="telefono"
+                                   placeholder="Ej: +504 9999-9999" autocomplete="tel" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email"
+                                   placeholder="correo@ejemplo.com" autocomplete="email">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="direccion">Dirección Completa <span class="required">*</span></label>
+                            <textarea id="direccion" name="direccion"
+                                      placeholder="Ingrese la dirección completa del paciente..."
+                                      autocomplete="address-line1" required></textarea>
+                        </div>
+
+                        <!-- CAMBIO 1 ▸ Alergias: de textarea a tag input (tabla PacienteAlergia) -->
+                        <div class="form-group full-width">
+                            <label>Alergias Conocidas</label>
+                            <div class="tag-input-wrapper" id="alergiasWrapper">
+                                <div class="tag-list" id="alergiasTagList"></div>
+                                <input type="text" class="tag-input" id="alergiasInput"
+                                       placeholder="Escribe una alergia y presiona Enter (ej: Penicilina)">
+                            </div>
+                            <small class="field-hint">Presiona Enter o coma para agregar cada alergia</small>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ── Sección: Información Médica ─────────────── -->
+                <div class="form-section">
+                    <div class="section-title"><span>🩺</span> Información Médica</div>
+                    <div class="form-grid">
+
+                        <div class="form-group full-width">
+                            <label for="motivoConsulta">
+                                Motivo de la Consulta <span class="required">*</span>
+                            </label>
+                            <textarea id="motivoConsulta" name="motivoConsulta"
+                                      placeholder="Describa brevemente el motivo de la consulta..."
+                                      required></textarea>
+                        </div>
+
+                        <!-- CAMBIO 2 ▸ Síntomas: de textarea a tag input (tabla ExpedienteSintoma) -->
+                        <div class="form-group full-width">
+                            <label>Síntomas Actuales <span class="required">*</span></label>
+                            <div class="tag-input-wrapper" id="sintomasWrapper">
+                                <div class="tag-list" id="sintomasTagList"></div>
+                                <input type="text" class="tag-input" id="sintomasInput"
+                                       placeholder="Escribe un síntoma y presiona Enter">
+                            </div>
+                            <small class="field-hint">Presiona Enter o coma para agregar cada síntoma</small>
+                        </div>
+                        
+                        <!-- CAMBIO 3 ▸ Medicamentos: de textarea a tag input (tabla ExpedienteMedicamento) -->
+                        <div class="form-group full-width">
+                            <label>Medicamentos Actuales</label>
+                            <div class="tag-input-wrapper" id="medicamentosWrapper">
+                                <div class="tag-list" id="medicamentosTagList"></div>
+                                <input type="text" class="tag-input" id="medicamentosInput"
+                                       placeholder="Escribe un medicamento y presiona Enter (ej: Metformina 500mg)">
+                            </div>
+                            <small class="field-hint">Presiona Enter o coma para agregar cada medicamento</small>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ── Sección: Nivel de Prioridad ─────────────── -->
+                <div class="form-section">
+                    <div class="section-title"><span>🚨</span> Nivel de Prioridad</div>
+                    <div class="priority-selector">
+                        <div class="priority-option priority-alta" data-priority="alta">
+                            <div class="priority-title">🔴 ALTA</div>
+                            <div class="priority-description">Emergencia médica, requiere atención inmediata</div>
+                        </div>
+                        <div class="priority-option priority-media" data-priority="media">
+                            <div class="priority-title">🟡 MEDIA</div>
+                            <div class="priority-description">Urgente, debe ser atendido pronto</div>
+                        </div>
+                        <div class="priority-option priority-baja" data-priority="baja">
+                            <div class="priority-title">🟢 BAJA</div>
+                            <div class="priority-description">Consulta general, puede esperar</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="prioridad" name="prioridad" required>
+                </div>
+
+                <!-- ── Sección: Número de Expediente ───────────── -->
+                <div class="form-section">
+                    <div class="section-title"><span>📄</span> Número de Expediente</div>
+                    <div class="expediente-preview">
+                        <div class="expediente-number" id="expedienteNumber">EXP-2025-0001</div>
+                        <div class="expediente-label">Número de expediente generado automáticamente</div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">💾 Registrar Paciente</button>
+                    <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">🔄 Limpiar Formulario</button>
+                    <button type="button" class="btn btn-danger"    onclick="goBack()">❌ Cancelar</button>
+                </div>
+
+            </div><!-- /form-content -->
         </form>
 
-        <!-- Formulario de Nueva Consulta -->
+        <!-- ════════════════════════════════════════════════════════
+             FORMULARIO: CONSULTA PARA PACIENTE YA INSCRITO
+             ════════════════════════════════════════════════════════ -->
         <form id="consultationForm" class="consultation-form">
-            <!-- Resumen del Paciente -->
-            <div class="patient-summary" id="patientSummaryDiv">
-            </div>
 
-            <!-- Información Médica de la Consulta -->
+            <!-- Resumen del paciente seleccionado (generado dinámicamente por JS) -->
+            <div class="patient-summary" id="patientSummaryDiv"></div>
+
+            <!-- ── Sección: Información de la Consulta ─────────── -->
             <div class="form-section">
-                <div class="section-title">
-                    <span>🩺</span> Información de la Consulta
-                </div>
+                <div class="section-title"><span>🩺</span> Información de la Consulta</div>
                 <div class="form-grid">
+
                     <div class="form-group full-width">
                         <label for="consultaMotivo">
                             Motivo de la Consulta <span class="required">*</span>
                         </label>
-                        <textarea id="consultaMotivo" name="consultaMotivo" placeholder="Describa brevemente el motivo de la consulta..." required></textarea>
+                        <textarea id="consultaMotivo" name="consultaMotivo"
+                                  placeholder="Describa brevemente el motivo de la consulta..."
+                                  required></textarea>
                     </div>
+
+                    <!-- CAMBIO 4 ▸ Síntomas consulta: de textarea a tag input (tabla ExpedienteSintoma) -->
                     <div class="form-group full-width">
-                        <label for="consultaSintomas">
-                            Síntomas Actuales <span class="required">*</span>
-                        </label>
-                        <textarea id="consultaSintomas" name="consultaSintomas" placeholder="Describa los síntomas que presenta el paciente..." required></textarea>
+                        <label>Síntomas Actuales <span class="required">*</span></label>
+                        <div class="tag-input-wrapper" id="consultaSintomasWrapper">
+                            <div class="tag-list" id="consultaSintomasTagList"></div>
+                            <input type="text" class="tag-input" id="consultaSintomasInput"
+                                   placeholder="Escribe un síntoma y presiona Enter (ej: Cefalea)">
+                        </div>
+                        <small class="field-hint">Presiona Enter o coma para agregar cada síntoma</small>
                     </div>
-                    <div class="form-group">
-                        <label for="consultaTiempoSintomas">
-                            Tiempo con Síntomas
-                        </label>
-                        <select id="consultaTiempoSintomas" name="consultaTiempoSintomas">
-                            <option value="">Seleccione...</option>
-                            <option value="Menos de 1 día">Menos de 1 día</option>
-                            <option value="1-3 días">1-3 días</option>
-                            <option value="4-7 días">4-7 días</option>
-                            <option value="1-2 semanas">1-2 semanas</option>
-                            <option value="Más de 2 semanas">Más de 2 semanas</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="consultaAlergias">Alergias Conocidas</label>
-                        <textarea id="consultaAlergias" name="consultaAlergias" placeholder="Medicamentos, alimentos, etc."></textarea>
-                    </div>
+
+                    <!-- CAMBIO 5 ▸ Alergias consulta: ELIMINADO del formulario.
+                         Las alergias son del paciente, no del expediente.
+                         Se gestionan desde el bloque resumen (botón "+ Agregar alergia"). -->
+
+                    <!-- CAMBIO 6 ▸ Medicamentos consulta: de textarea a tag input (tabla ExpedienteMedicamento) -->
                     <div class="form-group full-width">
-                        <label for="consultaMedicamentos">Medicamentos Actuales</label>
-                        <textarea id="consultaMedicamentos" name="consultaMedicamentos" placeholder="Liste los medicamentos que está tomando actualmente..."></textarea>
+                        <label>Medicamentos Actuales</label>
+                        <div class="tag-input-wrapper" id="consultaMedicamentosWrapper">
+                            <div class="tag-list" id="consultaMedicamentosTagList"></div>
+                            <input type="text" class="tag-input" id="consultaMedicamentosInput"
+                                   placeholder="Escribe un medicamento y presiona Enter (ej: Metformina 500mg)">
+                        </div>
+                        <small class="field-hint">Presiona Enter o coma para agregar cada medicamento</small>
                     </div>
+
                 </div>
             </div>
 
-            <!-- Nivel de Prioridad -->
+            <!-- ── Sección: Nivel de Prioridad (consulta) ──────── -->
             <div class="form-section">
-                <div class="section-title">
-                    <span>🚨</span> Nivel de Prioridad
-                </div>
+                <div class="section-title"><span>🚨</span> Nivel de Prioridad</div>
                 <div class="priority-selector" id="consultaPrioritySelector">
                     <div class="priority-option priority-alta" data-priority="alta">
                         <div class="priority-title">🔴 ALTA</div>
@@ -858,18 +728,13 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    💾 Registrar Consulta
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="cancelarConsulta()">
-                    🔄 Buscar Otro Paciente
-                </button>
-                <button type="button" class="btn btn-danger" onclick="goBack()">
-                    ❌ Cancelar
-                </button>
+                <button type="submit" class="btn btn-primary">💾 Registrar Consulta</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelarConsulta()">🔄 Buscar Otro Paciente</button>
+                <button type="button" class="btn btn-danger"    onclick="goBack()">❌ Cancelar</button>
             </div>
+
         </form>
-    </div>
+    </div><!-- /container -->
 
     <!-- Modal de Éxito -->
     <div class="success-modal" id="successModal">
@@ -879,519 +744,633 @@
             <div class="success-expediente" id="successExpediente">EXP-2025-0001</div>
             <p>El paciente ha sido registrado exitosamente en el sistema.</p>
             <div style="margin-top: 20px;">
-                <button class="btn btn-primary" onclick="registrarOtro()">Registrar Otro</button>
+                <button class="btn btn-primary"   onclick="registrarOtro()">Registrar Otro</button>
                 <button class="btn btn-secondary" onclick="volverMenu()">Volver al Menú</button>
             </div>
         </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════════
+         SCRIPT PRINCIPAL
+         ══════════════════════════════════════════════════════════ -->
     <script>
-        // Variables globales
-        let expedienteCounter = 1;
-        // Función para hacer requests autenticadas
-        function authenticatedFetch(url, options = {}) {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = 'login.html';
-                return Promise.reject('No token');
+    // ── Variables globales ────────────────────────────────────────
+    let pacienteSeleccionado = null;
+    let expedienteCounter    = 1;
+    let tagAlergias, tagSintomas, tagMedicamentos;
+    let tagConsultaSintomas, tagConsultaMedicamentos, tagNuevasAlergias;
+
+    // ─────────────────────────────────────────────────────────────
+    // TAG MANAGER
+    // Crea un gestor de "etiquetas" para un input dado.
+    // Cada valor ingresado (Enter o coma) se convierte en una etiqueta
+    // visual eliminable, y getItems() devuelve el array limpio.
+    // ─────────────────────────────────────────────────────────────
+    function crearTagManager(inputId, listId, claseTag = '') {
+        const input = document.getElementById(inputId);
+        const list  = document.getElementById(listId);
+        if (!input || !list) return { getItems: () => [], clear: () => {} };
+
+        const items = [];
+
+        function addTag(value) {
+            const v = value.trim().replace(/,+$/, '');
+            if (!v || items.includes(v)) return;
+            items.push(v);
+
+            const tag = document.createElement('span');
+            tag.className = `tag ${claseTag}`;
+            tag.innerHTML = `${v} <button class="tag-remove" type="button" title="Eliminar">×</button>`;
+            tag.querySelector('.tag-remove').addEventListener('click', () => {
+                items.splice(items.indexOf(v), 1);
+                list.removeChild(tag);
+            });
+            list.appendChild(tag);
+            input.value = '';
+        }
+
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(input.value); }
+        });
+        input.addEventListener('blur', () => addTag(input.value));
+
+        // Clic en el wrapper enfoca el input
+        const wrapper = document.getElementById(listId.replace('TagList', 'Wrapper'));
+        if (wrapper) wrapper.addEventListener('click', () => input.focus());
+
+        return {
+            getItems: () => [...items],
+            clear:    () => { items.length = 0; list.innerHTML = ''; input.value = ''; }
+        };
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // FETCH AUTENTICADO
+    // ─────────────────────────────────────────────────────────────
+    function authenticatedFetch(url, options = {}) {
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = 'login.html'; return Promise.reject('No token'); }
+        return fetch(url, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
             }
+        });
+    }
 
-            const defaultOptions = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                    ...options.headers
-                },
-                ...options
-            };
-
-            return fetch(url, defaultOptions);
+    // ─────────────────────────────────────────────────────────────
+    // CONTADOR DE EXPEDIENTES
+    // ─────────────────────────────────────────────────────────────
+    async function cargarContadorExpediente() {
+        try {
+            const response = await authenticatedFetch('http://localhost:5000/api/pacientes/expediente/contador');
+            const data     = await response.json();
+            expedienteCounter = (data.total || 0) + 1;
+        } catch {
+            expedienteCounter = 1;
         }
+    }
 
-        async function cargarContadorExpediente() {
-            try {
-                const response = await authenticatedFetch('http://localhost:5000/api/pacientes/expediente/contador');
-                const data = await response.json();
-                expedienteCounter = (data.total || 0) + 1;
-            } catch (e) {
-                expedienteCounter = 1;
+    function generarExpediente() {
+        const year   = new Date().getFullYear();
+        const number = String(expedienteCounter).padStart(4, '0');
+        return `EXP-${year}-${number}`;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // BÚSQUEDA DE PACIENTE POR DNI
+    // ─────────────────────────────────────────────────────────────
+    async function buscarPacientePorDni() {
+        const dni           = document.getElementById('buscarDni').value.trim();
+        const searchResults = document.getElementById('searchResults');
+        if (!dni) { showNotification('Por favor ingrese un DNI', 'error'); return; }
+
+        try {
+            const response = await authenticatedFetch(`http://localhost:5000/api/pacientes/paciente/${dni}`);
+            const data     = await response.json();
+            if (response.ok) {
+                mostrarResultadoPaciente(data, searchResults);
+            } else {
+                searchResults.innerHTML =
+                    '<p style="color:#e74c3c;text-align:center;padding:20px;">No se encontró paciente con ese DNI</p>';
             }
+        } catch (err) {
+            showNotification('Error al buscar paciente: ' + err.message, 'error');
+            searchResults.innerHTML = '';
         }
+    }
 
-        // Buscar paciente por DNI
-        async function buscarPacientePorDni() {
-            const dni = document.getElementById('buscarDni').value.trim();
-            const searchResults = document.getElementById('searchResults');
-
-            if (!dni) {
-                showNotification('Por favor ingrese un DNI', 'error');
-                return;
-            }
-
-            try {
-                const response = await authenticatedFetch(`http://localhost:5000/api/pacientes/paciente/${dni}`);
-                const data = await response.json();
-
-                if (response.ok && data) {
-                    mostrarResultadoPaciente(data, searchResults);
-                } else {
-                    searchResults.innerHTML = '<p style="color: #e74c3c; text-align: center; padding: 20px;">No se encontró paciente con ese DNI</p>';
-                }
-            } catch (err) {
-                showNotification('Error al buscar paciente: ' + err.message, 'error');
-                searchResults.innerHTML = '';
-            }
-        }
-
-        function mostrarResultadoPaciente(paciente, container) {
-            container.innerHTML = `
-                <div class="patient-result">
-                    <h3>✅ Paciente Encontrado</h3>
-                    <div class="patient-info">
-                        <div class="patient-info-item">
-                            <strong>Nombre:</strong>
-                            <span>${paciente.nombre || 'N/A'}</span>
-                        </div>
-                        <div class="patient-info-item">
-                            <strong>DNI:</strong>
-                            <span>${paciente.dni || 'N/A'}</span>
-                        </div>
-                        <div class="patient-info-item">
-                            <strong>Edad:</strong>
-                            <span>${paciente.edad || 'N/A'}</span>
-                        </div>
-                        <div class="patient-info-item">
-                            <strong>Sexo:</strong>
-                            <span>${paciente.sexo === 'M' ? 'Masculino' : 'Femenino'}</span>
-                        </div>
-                        <div class="patient-info-item">
-                            <strong>Teléfono:</strong>
-                            <span>${paciente.telefono || 'N/A'}</span>
-                        </div>
-                        <div class="patient-info-item">
-                            <strong>Email:</strong>
-                            <span>${paciente.email || 'N/A'}</span>
-                        </div>
-                    </div>
-                    <div class="patient-actions">
-                        <button class="btn-select" onclick="seleccionarPaciente(${JSON.stringify(paciente).replace(/"/g, '&quot;')})">
-                            ✅ Usar este Paciente
-                        </button>
-                        <button class="btn-cancel" type="button" onclick="limpiarBusqueda()">
-                            ❌ Buscar otro
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function seleccionarPaciente(paciente) {
-            console.log('Seleccionando paciente:', paciente);
-            pacienteSeleccionado = paciente;
-            
-            // Ocultar búsqueda y mostrar formulario de consulta
-            const searchDniSection = document.getElementById('searchDniSection');
-            const consultationForm = document.getElementById('consultationForm');
-            
-            searchDniSection.classList.remove('active');
-            consultationForm.classList.add('active');
-            
-            // Mostrar resumen del paciente
-            mostrarResumenPaciente(paciente);
-            
-            // Limpiar resultados de búsqueda
-            document.getElementById('searchResults').innerHTML = '';
-            
-            // Desmarcar checkbox
-            document.getElementById('pacienteYaInscrito').checked = false;
-            
-            // Llenar datos personales disponibles después de mostrar el formulario
-            setTimeout(() => {
-                document.getElementById('nombres').value = paciente.nombre || '';
-                document.getElementById('apellidos').value = paciente.apellido || '';
-                document.getElementById('dni').value = paciente.dni || '';
-                document.getElementById('fechaNacimiento').value = paciente.fechaNacimiento || '';
-                document.getElementById('edad').value = paciente.edad || '';
-                document.getElementById('sexo').value = paciente.sexo || '';
-                document.getElementById('telefono').value = paciente.telefono || '';
-                document.getElementById('email').value = paciente.email || '';
-                document.getElementById('direccion').value = paciente.direccion || '';
-            }, 100);
-            
-            showNotification(`Datos del paciente ${paciente.nombre} cargados. Complete la información médica.`, 'success');
-        }
-
-        function mostrarResumenPaciente(paciente) {
-            const summary = document.getElementById('patientSummaryDiv');
-            summary.innerHTML = `
-                <h3>👤 Datos del Paciente Seleccionado</h3>
-                <div class="patient-summary-grid">
-                    <div class="patient-summary-item">
+    function mostrarResultadoPaciente(paciente, container) {
+        container.innerHTML = `
+            <div class="patient-result">
+                <h3>✅ Paciente Encontrado</h3>
+                <div class="patient-info">
+                    <div class="patient-info-item">
                         <strong>Nombre:</strong>
-                        <span>${paciente.nombre}</span>
+                        <span>${paciente.nombre} ${paciente.apellido ?? ''}</span>
                     </div>
-                    <div class="patient-summary-item">
+                    <div class="patient-info-item">
                         <strong>DNI:</strong>
                         <span>${paciente.dni}</span>
                     </div>
-                    <div class="patient-summary-item">
+                    <div class="patient-info-item">
                         <strong>Edad:</strong>
-                        <span>${paciente.edad} años</span>
+                        <span>${paciente.edad ?? 'N/A'}</span>
                     </div>
-                    <div class="patient-summary-item">
+                    <div class="patient-info-item">
+                        <strong>Sexo:</strong>
+                        <span>${paciente.sexo === 'M' ? 'Masculino' : paciente.sexo === 'F' ? 'Femenino' : 'N/A'}</span>
+                    </div>
+                    <div class="patient-info-item">
                         <strong>Teléfono:</strong>
-                        <span>${paciente.telefono}</span>
+                        <span>${paciente.telefono || 'N/A'}</span>
+                    </div>
+                    <div class="patient-info-item">
+                        <strong>Alergias:</strong>
+                        <span>${paciente.alergias?.length ? paciente.alergias.join(', ') : 'Ninguna'}</span>
                     </div>
                 </div>
-            `;
+                <div class="patient-actions">
+                    <button class="btn-select"
+                            onclick="seleccionarPaciente(${JSON.stringify(paciente).replace(/"/g, '&quot;')})">
+                        ✅ Usar este Paciente
+                    </button>
+                    <button class="btn-cancel" type="button" onclick="limpiarBusqueda()">
+                        ❌ Buscar otro
+                    </button>
+                </div>
+            </div>`;
+    }
+
+    function limpiarBusqueda() {
+        document.getElementById('buscarDni').value       = '';
+        document.getElementById('searchResults').innerHTML = '';
+        document.getElementById('buscarDni').focus();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // SELECCIONAR PACIENTE → mostrar formulario de consulta
+    // ─────────────────────────────────────────────────────────────
+    function seleccionarPaciente(paciente) {
+        pacienteSeleccionado = paciente;
+        document.getElementById('searchDniSection').classList.remove('active');
+        document.getElementById('patientForm').style.display = 'none';
+        document.getElementById('consultationForm').classList.add('active');
+        mostrarResumenPaciente(paciente);
+        document.getElementById('searchResults').innerHTML = '';
+        showNotification(`Paciente ${paciente.nombre} seleccionado. Complete la información médica.`, 'success');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // RESUMEN DEL PACIENTE (con bloque de alergias interactivo)
+    // ─────────────────────────────────────────────────────────────
+    function mostrarResumenPaciente(paciente) {
+        const summary = document.getElementById('patientSummaryDiv');
+
+        const alergiasHTML = paciente.alergias?.length
+            ? paciente.alergias.map(a => `<span class="tag tag-readonly">⚠️ ${a}</span>`).join('')
+            : '<span class="no-alergias">Sin alergias registradas</span>';
+
+        summary.innerHTML = `
+            <h3>👤 Datos del Paciente Seleccionado</h3>
+            <div class="patient-summary-grid">
+                <div class="patient-summary-item">
+                    <strong>Nombre:</strong>
+                    <span>${paciente.nombre} ${paciente.apellido ?? ''}</span>
+                </div>
+                <div class="patient-summary-item">
+                    <strong>DNI:</strong>
+                    <span>${paciente.dni}</span>
+                </div>
+                <div class="patient-summary-item">
+                    <strong>Edad:</strong>
+                    <span>${paciente.edad} años</span>
+                </div>
+                <div class="patient-summary-item">
+                    <strong>Teléfono:</strong>
+                    <span>${paciente.telefono || 'N/A'}</span>
+                </div>
+            </div>
+
+            <!-- Alergias registradas + opción de agregar nuevas -->
+            <div class="alergias-block">
+                <div class="alergias-header">
+                    <span>🩺 Alergias registradas</span>
+                    <button type="button" class="btn-toggle-nuevas" onclick="toggleNuevasAlergias()">
+                        + Agregar alergia
+                    </button>
+                </div>
+                <div class="tag-list" id="alergiasExistentes">${alergiasHTML}</div>
+
+                <div class="nuevas-alergias-form" id="nuevasAlergiasForm" style="display:none;">
+                    <div class="tag-input-wrapper" id="nuevasAlergiasWrapper">
+                        <div class="tag-list" id="nuevasAlergiasTagList"></div>
+                        <input type="text" class="tag-input" id="nuevasAlergiasInput"
+                               placeholder="Escribe una alergia y presiona Enter">
+                    </div>
+                    <div class="nuevas-alergias-actions">
+                        <button type="button" class="btn-guardar-alergias"
+                                onclick="guardarNuevasAlergias()">
+                            💾 Guardar alergias
+                        </button>
+                        <button type="button" class="btn-cancelar-alergias"
+                                onclick="toggleNuevasAlergias()">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+
+        // Inicializar tag manager para nuevas alergias
+        tagNuevasAlergias = crearTagManager('nuevasAlergiasInput', 'nuevasAlergiasTagList', 'tag-alergia');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // TOGGLE PANEL "NUEVAS ALERGIAS"
+    // ─────────────────────────────────────────────────────────────
+    function toggleNuevasAlergias() {
+        const form    = document.getElementById('nuevasAlergiasForm');
+        const visible = form.style.display !== 'none';
+        form.style.display = visible ? 'none' : 'block';
+        if (!visible) {
+            setTimeout(() => document.getElementById('nuevasAlergiasInput')?.focus(), 100);
+        } else {
+            tagNuevasAlergias?.clear();
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // GUARDAR NUEVAS ALERGIAS (paciente ya inscrito)
+    // ─────────────────────────────────────────────────────────────
+    async function guardarNuevasAlergias() {
+        if (!pacienteSeleccionado) return;
+        const nuevas = tagNuevasAlergias?.getItems() ?? [];
+        if (!nuevas.length) {
+            showNotification('Agrega al menos una alergia antes de guardar', 'error');
+            return;
         }
 
-        function cancelarConsulta() {
-            document.getElementById('consultationForm').classList.remove('active');
-            document.getElementById('searchDniSection').classList.add('active');
-            document.getElementById('consultationForm').reset();
-            document.querySelectorAll('#consultaPrioritySelector .priority-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            limpiarBusqueda();
-            pacienteSeleccionado = null;
+        try {
+            const response = await authenticatedFetch(
+                `http://localhost:5000/api/pacientes/paciente/${pacienteSeleccionado.dni}/alergias`,
+                { method: 'POST', body: JSON.stringify({ alergias: nuevas }) }
+            );
+            const data = await response.json();
+            if (response.ok) {
+                pacienteSeleccionado.alergias = data.alergias;
+                mostrarResumenPaciente(pacienteSeleccionado);
+                showNotification(`${nuevas.length} alergia(s) guardada(s) correctamente`, 'success');
+            } else {
+                showNotification(data.mensaje || 'Error al guardar alergias', 'error');
+            }
+        } catch {
+            showNotification('No se pudo conectar con el servidor', 'error');
         }
+    }
 
-        function limpiarBusqueda() {
-            document.getElementById('buscarDni').value = '';
-            document.getElementById('searchResults').innerHTML = '';
-            document.getElementById('buscarDni').focus();
-        }
+    // ─────────────────────────────────────────────────────────────
+    // CANCELAR CONSULTA → volver a búsqueda
+    // ─────────────────────────────────────────────────────────────
+    function cancelarConsulta() {
+        document.getElementById('consultationForm').classList.remove('active');
+        document.getElementById('consultationForm').reset();
+        document.getElementById('patientForm').style.display = '';
+        document.getElementById('searchDniSection').classList.add('active');
+        document.getElementById('pacienteYaInscrito').checked = true;
 
-        // Generar número de expediente
-        function generarExpediente() {
-            const year = new Date().getFullYear();
-            const number = expedienteCounter.toString().padStart(4, '0');
-            return `EXP-${year}-${number}`;
-        }
+        // Limpiar tags del formulario de consulta
+        tagConsultaSintomas?.clear();
+        tagConsultaMedicamentos?.clear();
 
-        // Calcular edad automáticamente
-        document.getElementById('fechaNacimiento').addEventListener('change', function() {
-            const fechaNac = new Date(this.value);
-            const hoy = new Date();
-            let edad = hoy.getFullYear() - fechaNac.getFullYear();
-            const m = hoy.getMonth() - fechaNac.getMonth();
-            
-            if (m < 0 || (m === 0 && hoy.getDate() < fechaNac.getDate())) {
-                edad--;
-            }
-            
-            document.getElementById('edad').value = edad >= 0 ? edad : '';
-        });
+        limpiarBusqueda();
+        pacienteSeleccionado = null;
 
-        // Manejar selección de prioridad
-        document.querySelectorAll('.priority-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.priority-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                });
-                
-                this.classList.add('selected');
-                const priorityValue = this.dataset.priority;
-                
-                // Set the correct hidden input based on the selector
-                if (this.closest('.priority-selector').id === 'consultaPrioritySelector') {
-                    document.getElementById('consultaPrioridad').value = priorityValue;
-                } else {
-                    document.getElementById('prioridad').value = priorityValue;
-                }
-            });
-        });
+        // Limpiar prioridad seleccionada
+        document.querySelectorAll('#consultaPrioritySelector .priority-option')
+            .forEach(opt => opt.classList.remove('selected'));
+    }
 
-        // Formatear DNI
-        // Formatear DNI: solo números
-        document.getElementById('dni').addEventListener('input', function() {
-            this.value = this.value.replace(/\D/g, '');
-        });
+    // ─────────────────────────────────────────────────────────────
+    // VALIDAR FORMULARIO DE NUEVO PACIENTE
+    // ─────────────────────────────────────────────────────────────
+    function validarFormulario() {
+        const requiredFields = document.querySelectorAll('#patientForm [required]');
+        let isValid = true;
 
-
-        // Formatear teléfono
-        document.getElementById('telefono').addEventListener('input', function() {
-            let value = this.value.replace(/\D/g, '');
-            if (value.length >= 3 && value.startsWith('504')) {
-                value = '+504 ' + value.substring(3);
-                if (value.length >= 12) {
-                    value = value.substring(0, 9) + '-' + value.substring(9, 13);
-                }
-            } else if (value.length >= 4) {
-                value = '+504 ' + value;
-                if (value.length >= 12) {
-                    value = value.substring(0, 9) + '-' + value.substring(9, 13);
-                }
-            }
-            this.value = value;
-        });
-
-        // Manejar envío del formulario
-        document.getElementById('patientForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (validarFormulario()) {
-                registrarPaciente();
-            }
-        });
-
-        // Manejar envío del formulario de consulta
-        document.getElementById('consultationForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (validarFormularioConsulta()) {
-                registrarConsulta();
-            }
-        });
-
-        function validarFormulario() {
-            const requiredFields = document.querySelectorAll('#patientForm [required]');
-            let isValid = true;
-            
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    field.style.borderColor = '#e74c3c';
-                    console.log('Campo requerido vacío:', field.name || field.id);
-                    isValid = false;
-                } else {
-                    field.style.borderColor = '#e8f4fd';
-                }
-            });
-
-            if (!document.getElementById('prioridad').value) {
-                showNotification('Por favor seleccione un nivel de prioridad', 'error');
-                console.log('Prioridad no seleccionada');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.style.borderColor = '#e74c3c';
                 isValid = false;
+            } else {
+                field.style.borderColor = '#e8f4fd';
             }
+        });
 
-            if (!isValid) {
-                showNotification('Por favor complete todos los campos requeridos', 'error');
-            }
-
-            return isValid;
+        if (!document.getElementById('prioridad').value) {
+            showNotification('Por favor seleccione un nivel de prioridad', 'error');
+            isValid = false;
         }
 
-        async function registrarPaciente() {
-            const form = document.getElementById('patientForm');
-            const formData = new FormData(form);
-            const expediente = generarExpediente();
-
-            // Mapeo prioridad (texto) a urgencia (número)
-            const prioridadTexto = formData.get('prioridad');
-            let urgencia = 3;
-            if (prioridadTexto === 'alta') urgencia = 1;
-            else if (prioridadTexto === 'media') urgencia = 2;
-
-            // Formateo de campos especiales
-            const dni = formData.get('dni') || "";
-            const telefono = formData.get('telefono') || "";
-            const email = formData.get('email') || "";
-            const fechaNacimiento = formData.get('fechaNacimiento') || "";
-
-            const paciente = {
-                dni: dni,
-                nombre: formData.get('nombres') || "",
-                apellido: formData.get('apellidos') || "",
-                fechaNacimiento: fechaNacimiento,
-                direccion: formData.get('direccion') || "",
-                telefono: telefono,
-                email: email,
-                sexo: formData.get('sexo') || ""
-            };
-
-            // Primero registrar paciente si no existe, luego expediente
-            try {
-                // Registrar paciente
-                const responsePaciente = await authenticatedFetch('http://localhost:5000/api/pacientes/paciente', {
-                    method: 'POST',
-                    body: JSON.stringify(paciente)
-                });
-                const dataPaciente = await responsePaciente.json();
-                
-                if (!responsePaciente.ok) {
-                    showNotification(dataPaciente.mensaje || 'Error al registrar paciente', 'error');
-                    return;
-                }
-
-                // Ahora registrar expediente
-                const expedienteData = {
-                    dni: paciente.dni,
-                    motivoConsulta: formData.get('motivoConsulta') || "",
-                    sintomas: formData.get('sintomas') || "",
-                    urgencia: urgencia
-                };
-
-                const responseExpediente = await authenticatedFetch('http://localhost:5000/api/pacientes/expediente', {
-                    method: 'POST',
-                    body: JSON.stringify(expedienteData)
-                });
-                const dataExpediente = await responseExpediente.json();
-
-                if (responseExpediente.ok) {
-                    const expedienteId = dataExpediente.idExpediente;
-                    expedienteCounter = expedienteId + 1;
-                    document.getElementById('successExpediente').textContent = `EXP-${new Date().getFullYear()}-${expedienteId.toString().padStart(4, '0')}`;
-                    document.getElementById('successModal').style.display = 'flex';
-                    actualizarContadoresEnMenu();
-                } else {
-                    showNotification(dataExpediente.mensaje || 'Error al registrar expediente', 'error');
-                }
-            } catch (err) {
-                showNotification('No se pudo conectar con el servidor', 'error');
-            }
+        // Validar que haya al menos un síntoma
+        if (tagSintomas.getItems().length === 0) {
+            showNotification('Por favor ingrese al menos un síntoma', 'error');
+            isValid = false;
         }
 
-        function validarFormularioConsulta() {
-            const requiredFields = document.querySelectorAll('#consultationForm [required]');
-            let isValid = true;
-            
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    field.style.borderColor = '#e74c3c';
-                    isValid = false;
-                } else {
-                    field.style.borderColor = '#e8f4fd';
-                }
-            });
+        if (!isValid && document.getElementById('prioridad').value && tagSintomas.getItems().length > 0) {
+            showNotification('Por favor complete todos los campos requeridos', 'error');
+        }
 
-            if (!document.getElementById('consultaPrioridad').value) {
-                showNotification('Por favor seleccione un nivel de prioridad', 'error');
+        return isValid;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // VALIDAR FORMULARIO DE CONSULTA
+    // ─────────────────────────────────────────────────────────────
+    function validarFormularioConsulta() {
+        const requiredFields = document.querySelectorAll('#consultationForm [required]');
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.style.borderColor = '#e74c3c';
                 isValid = false;
+            } else {
+                field.style.borderColor = '#e8f4fd';
             }
+        });
 
-            if (!isValid) {
-                showNotification('Por favor complete todos los campos requeridos', 'error');
-            }
-
-            return isValid;
+        if (!document.getElementById('consultaPrioridad').value) {
+            showNotification('Por favor seleccione un nivel de prioridad', 'error');
+            isValid = false;
         }
 
-        async function registrarConsulta() {
-            if (!pacienteSeleccionado) {
-                showNotification('Error: Paciente no seleccionado', 'error');
+        if (tagConsultaSintomas.getItems().length === 0) {
+            showNotification('Por favor ingrese al menos un síntoma', 'error');
+            isValid = false;
+        }
+
+        if (!isValid) showNotification('Por favor complete todos los campos requeridos', 'error');
+        return isValid;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // REGISTRAR PACIENTE NUEVO
+    // Flujo: POST /paciente → POST /expediente (con síntomas y medicamentos)
+    // ─────────────────────────────────────────────────────────────
+    async function registrarPaciente() {
+        const form     = document.getElementById('patientForm');
+        const formData = new FormData(form);
+        const prioridad = formData.get('prioridad');
+        const urgencia  = prioridad === 'alta' ? 1 : prioridad === 'media' ? 2 : 3;
+
+        const paciente = {
+            dni:             formData.get('dni')             || '',
+            nombre:          formData.get('nombres')         || '',
+            apellido:        formData.get('apellidos')       || '',
+            fechaNacimiento: formData.get('fechaNacimiento') || '',
+            direccion:       formData.get('direccion')       || '',
+            telefono:        formData.get('telefono')        || '',
+            email:           formData.get('email')           || '',
+            sexo:            formData.get('sexo')            || '',
+            alergias:        tagAlergias.getItems()    // ← tabla PacienteAlergia
+        };
+
+        const expedienteData = {
+            dni:            paciente.dni,
+            motivoConsulta: formData.get('motivoConsulta') || '',
+            sintomas:       tagSintomas.getItems(),        // ← tabla ExpedienteSintoma
+            medicamentos:   tagMedicamentos.getItems(),    // ← tabla ExpedienteMedicamento
+            urgencia
+        };
+
+        try {
+            // 1. Registrar paciente (incluye alergias vía SP)
+            const resPac  = await authenticatedFetch('http://localhost:5000/api/pacientes/paciente',
+                { method: 'POST', body: JSON.stringify(paciente) });
+            const dataPac = await resPac.json();
+
+            if (!resPac.ok) {
+                showNotification(dataPac.mensaje || 'Error al registrar paciente', 'error');
                 return;
             }
 
-            const form = document.getElementById('consultationForm');
-            const formData = new FormData(form);
+            // 2. Registrar expediente (incluye síntomas y medicamentos en transacción)
+            const resExp  = await authenticatedFetch('http://localhost:5000/api/pacientes/expediente',
+                { method: 'POST', body: JSON.stringify(expedienteData) });
+            const dataExp = await resExp.json();
 
-            const prioridad = document.getElementById('consultaPrioridad').value;
-            let urgencia = 2;
-            if (prioridad === 'alta') urgencia = 1;
-            else if (prioridad === 'baja') urgencia = 3;
-
-            const expedienteData = {
-                dni: pacienteSeleccionado.dni,
-                motivoConsulta: formData.get('consultaMotivo') || "",
-                urgencia: urgencia
-            };
-
-            try {
-                const response = await authenticatedFetch('http://localhost:5000/api/pacientes/expediente', {
-                    method: 'POST',
-                    body: JSON.stringify(expedienteData)
-                });
-                const data = await response.json();
-                
-                if (response.ok) {
-                    const expedienteId = data.idExpediente;
-                    expedienteCounter = expedienteId + 1;
-                    document.getElementById('successExpediente').textContent = `EXP-${new Date().getFullYear()}-${expedienteId.toString().padStart(4, '0')}`;
-                    document.getElementById('successModal').style.display = 'flex';
-                } else {
-                    showNotification(data.error || 'Error al registrar consulta', 'error');
-                }
-            } catch (err) {
-                showNotification('No se pudo conectar con el servidor', 'error');
-            }
-        }
-
-        function actualizarContadoresEnMenu() {
-            window.location.href = 'index.html';
-        }
-
-        function limpiarFormulario() {
-            document.getElementById('patientForm').reset();
-            document.querySelectorAll('.priority-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            document.getElementById('expedienteNumber').textContent = generarExpediente();
-            
-            document.querySelectorAll('input, select, textarea').forEach(field => {
-                field.style.borderColor = '#e8f4fd';
-            });
-
-            showNotification('Formulario limpiado correctamente', 'success');
-        }
-
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s ease-out';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 300);
-            }, 3000);
-        }
-
-        function goBack() {
-            if (window.opener && !window.opener.closed) {
-                window.close();
+            if (resExp.ok) {
+                const expId = dataExp.idExpediente;
+                expedienteCounter = expId + 1;
+                document.getElementById('successExpediente').textContent =
+                    `EXP-${new Date().getFullYear()}-${String(expId).padStart(4, '0')}`;
+                document.getElementById('successModal').style.display = 'flex';
             } else {
-                window.location.href = './index.html';
+                showNotification(dataExp.mensaje || 'Error al registrar expediente', 'error');
+            }
+
+        } catch {
+            showNotification('No se pudo conectar con el servidor', 'error');
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // REGISTRAR CONSULTA (paciente ya inscrito)
+    // Flujo: POST /expediente (con síntomas y medicamentos)
+    // ─────────────────────────────────────────────────────────────
+    async function registrarConsulta() {
+        if (!pacienteSeleccionado) {
+            showNotification('Error: Paciente no seleccionado', 'error');
+            return;
+        }
+
+        const form     = document.getElementById('consultationForm');
+        const formData = new FormData(form);
+        const prioridad = document.getElementById('consultaPrioridad').value;
+        const urgencia  = prioridad === 'alta' ? 1 : prioridad === 'baja' ? 3 : 2;
+
+        const expedienteData = {
+            dni:            pacienteSeleccionado.dni,
+            motivoConsulta: formData.get('consultaMotivo') || '',
+            sintomas:       tagConsultaSintomas.getItems(),       // ← tabla ExpedienteSintoma
+            medicamentos:   tagConsultaMedicamentos.getItems(),   // ← tabla ExpedienteMedicamento
+            urgencia
+        };
+
+        try {
+            const response = await authenticatedFetch('http://localhost:5000/api/pacientes/expediente',
+                { method: 'POST', body: JSON.stringify(expedienteData) });
+            const data = await response.json();
+
+            if (response.ok) {
+                const expId = data.idExpediente;
+                expedienteCounter = expId + 1;
+                document.getElementById('successExpediente').textContent =
+                    `EXP-${new Date().getFullYear()}-${String(expId).padStart(4, '0')}`;
+                document.getElementById('successModal').style.display = 'flex';
+            } else {
+                showNotification(data.error || data.mensaje || 'Error al registrar consulta', 'error');
+            }
+        } catch {
+            showNotification('No se pudo conectar con el servidor', 'error');
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // LIMPIAR FORMULARIO
+    // ─────────────────────────────────────────────────────────────
+    function limpiarFormulario() {
+        document.getElementById('patientForm').reset();
+
+        // Limpiar todos los tag managers
+        tagAlergias?.clear();
+        tagSintomas?.clear();
+        tagMedicamentos?.clear();
+
+        // Limpiar selección de prioridad
+        document.querySelectorAll('#patientForm .priority-option')
+            .forEach(opt => opt.classList.remove('selected'));
+
+        // Limpiar bordes de error
+        document.querySelectorAll('#patientForm input, #patientForm select, #patientForm textarea')
+            .forEach(field => { field.style.borderColor = '#e8f4fd'; });
+
+        document.getElementById('expedienteNumber').textContent = generarExpediente();
+        showNotification('Formulario limpiado correctamente', 'success');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // MODAL: registrar otro / volver al menú
+    // ─────────────────────────────────────────────────────────────
+    function registrarOtro() {
+        document.getElementById('successModal').style.display = 'none';
+        limpiarFormulario();
+    }
+
+    function volverMenu() { window.location.href = './index.html'; }
+
+    // ─────────────────────────────────────────────────────────────
+    // NAVEGACIÓN
+    // ─────────────────────────────────────────────────────────────
+    function goBack() {
+        if (window.opener && !window.opener.closed) window.close();
+        else window.location.href = './index.html';
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // NOTIFICACIONES
+    // ─────────────────────────────────────────────────────────────
+    function showNotification(message, type = 'success') {
+        const notification       = document.createElement('div');
+        notification.className   = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => { notification.parentNode?.removeChild(notification); }, 300);
+        }, 3000);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // LISTENERS DE PRIORIDAD
+    // ─────────────────────────────────────────────────────────────
+    document.querySelectorAll('.priority-option').forEach(option => {
+        option.addEventListener('click', function () {
+            const selector     = this.closest('.priority-selector');
+            const isConsulta   = selector.id === 'consultaPrioritySelector';
+            const hiddenInput  = document.getElementById(isConsulta ? 'consultaPrioridad' : 'prioridad');
+
+            // Deseleccionar opciones del mismo selector
+            selector.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            hiddenInput.value = this.dataset.priority;
+        });
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // LISTENER: Calcular edad desde fecha de nacimiento
+    // ─────────────────────────────────────────────────────────────
+    document.getElementById('fechaNacimiento').addEventListener('change', function () {
+        const fechaNac = new Date(this.value);
+        const hoy      = new Date();
+        let edad = hoy.getFullYear() - fechaNac.getFullYear();
+        const m  = hoy.getMonth() - fechaNac.getMonth();
+        if (m < 0 || (m === 0 && hoy.getDate() < fechaNac.getDate())) edad--;
+        document.getElementById('edad').value = edad >= 0 ? edad : '';
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // LISTENER: Formatear DNI (solo números)
+    // ─────────────────────────────────────────────────────────────
+    document.getElementById('dni').addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '');
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // LISTENER: Formatear teléfono
+    // ─────────────────────────────────────────────────────────────
+    document.getElementById('telefono').addEventListener('input', function () {
+        let value = this.value.replace(/\D/g, '');
+        if (value.startsWith('504')) value = value.substring(3);
+        if (value.length > 0) {
+            value = '+504 ' + value;
+            if (value.length >= 12) {
+                value = value.substring(0, 9) + '-' + value.substring(9, 13);
             }
         }
+        this.value = value;
+    });
 
-        function registrarOtro() {
-            document.getElementById('successModal').style.display = 'none';
-            limpiarFormulario();
-        }
+    // ─────────────────────────────────────────────────────────────
+    // SUBMIT: Formulario de nuevo paciente
+    // ─────────────────────────────────────────────────────────────
+    document.getElementById('patientForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (validarFormulario()) registrarPaciente();
+    });
 
-        function volverMenu() {
-            window.location.href = './index.html';
-        }
+    // ─────────────────────────────────────────────────────────────
+    // SUBMIT: Formulario de consulta (paciente ya inscrito)
+    // ─────────────────────────────────────────────────────────────
+    document.getElementById('consultationForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (validarFormularioConsulta()) registrarConsulta();
+    });
 
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', async function() {
-            await cargarContadorExpediente();
-            document.getElementById('expedienteNumber').textContent = generarExpediente();
-            
-            // Configurar checkbox "Paciente ya inscrito"
-            const checkboxPacienteYaInscrito = document.getElementById('pacienteYaInscrito');
-            const searchDniSection = document.getElementById('searchDniSection');
-            const formContent = document.getElementById('formContent');
+    // ─────────────────────────────────────────────────────────────
+    // DOMContentLoaded: inicializar tag managers y checkbox
+    // ─────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
 
-            checkboxPacienteYaInscrito.addEventListener('change', function() {
-                console.log('Checkbox changed:', this.checked);
-                if (this.checked) {
-                    searchDniSection.classList.add('active');
-                    formContent.classList.add('hidden');
-                    document.getElementById('buscarDni').focus();
-                    console.log('Showing search section');
-                } else {
-                    searchDniSection.classList.remove('active');
-                    formContent.classList.remove('hidden');
-                    document.getElementById('searchResults').innerHTML = '';
-                    pacienteSeleccionado = null;
-                    console.log('Showing form section');
-                }
-            });
+        // Inicializar todos los tag managers
+        tagAlergias             = crearTagManager('alergiasInput',             'alergiasTagList',             'tag-alergia');
+        tagSintomas             = crearTagManager('sintomasInput',             'sintomasTagList',             'tag-sintoma');
+        tagMedicamentos         = crearTagManager('medicamentosInput',         'medicamentosTagList',         'tag-medic');
+        tagConsultaSintomas     = crearTagManager('consultaSintomasInput',     'consultaSintomasTagList',     'tag-sintoma');
+        tagConsultaMedicamentos = crearTagManager('consultaMedicamentosInput', 'consultaMedicamentosTagList', 'tag-medic');
 
-            showNotification('Formulario de registro listo', 'success');
+        // Cargar contador y mostrar número de expediente
+        await cargarContadorExpediente();
+        document.getElementById('expedienteNumber').textContent = generarExpediente();
+
+        // Checkbox "Paciente ya inscrito"
+        document.getElementById('pacienteYaInscrito').addEventListener('change', function () {
+            document.getElementById('searchDniSection').classList.toggle('active', this.checked);
+            document.getElementById('formContent').classList.toggle('hidden',      this.checked);
+            if (this.checked) {
+                document.getElementById('buscarDni').focus();
+            } else {
+                document.getElementById('searchResults').innerHTML = '';
+                pacienteSeleccionado = null;
+            }
         });
 
-        // Manejar mensajes de otras ventanas
-        window.addEventListener('message', function(event) {
-            // Aquí podrías manejar mensajes del menú principal si es necesario
-        });
+        showNotification('Formulario de registro listo', 'success');
+    });
     </script>
 </body>
 </html>

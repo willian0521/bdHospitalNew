@@ -1,11 +1,12 @@
-// Modelo de Tratamiento
+// models/Tratamiento.js
 export default class Tratamiento {
-  constructor(idTratamiento, idExpediente, codigoEmpleado, diagnostico, tratamiento, fechaRegistro) {
-    this.idTratamiento = idTratamiento;
-    this.idExpediente = idExpediente;
+  constructor(idTratamiento, idExpediente, codigoEmpleado,
+              diagnostico, tratamiento, fechaRegistro) {
+    this.idTratamiento  = idTratamiento;
+    this.idExpediente   = idExpediente;
     this.codigoEmpleado = codigoEmpleado;
-    this.diagnostico = diagnostico;
-    this.tratamiento = tratamiento;
-    this.fechaRegistro = fechaRegistro;
+    this.diagnostico    = diagnostico;
+    this.tratamiento    = tratamiento;
+    this.fechaRegistro  = fechaRegistro;
   }
 }

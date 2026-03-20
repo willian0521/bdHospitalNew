@@ -1,24 +1,15 @@
-// Modelo de Usuario
-class Usuario {
+// models/Usuario.js
+export default class Usuario {
   constructor(dni, nombre, apellido, rol, tipoMedico, codigoEmpleado, contrasena) {
-    this.dni = dni;
-    this.nombre = nombre;
-    this.apellido = apellido;
-    this.rol = rol; // 'Admin', 'Medico', 'Recepcionista'
-    this.tipoMedico = tipoMedico; // Solo para Medico
-    this.codigoEmpleado = codigoEmpleado; // Generado automáticamente
-    this.contrasena = contrasena; // En producción, hashear la contraseña
+    this.dni            = dni;
+    this.nombre         = nombre;
+    this.apellido       = apellido;
+    this.rol            = rol;
+    this.tipoMedico     = tipoMedico;
+    this.codigoEmpleado = codigoEmpleado;
+    this.contrasena     = contrasena;
   }
 
-  // mettodo para verificar contraseña 
-  verificarPassword(password) {
-    return this.contrasena === password;
-  }
-
-  // Mtodo para verificar rol
-  tieneRol(rol) {
-    return this.rol === rol;
-  }
+  verificarPassword(password) { return this.contrasena === password; }
+  tieneRol(rol)               { return this.rol === rol; }
 }
-
-export default Usuario;

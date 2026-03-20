@@ -1,11 +1,8 @@
--- Created by GitHub Copilot in SSMS - review carefully before executing
-
 -- ============================================================
 -- BASE DE DATOS: bdHospital2
 -- Sistema de Gestión de Consultas Médicas (SmartClinic DB)
 -- Proyecto Final - Administración de Base de Datos II
 -- Ing. Naomy Ríos
--- SCRIPT CORREGIDO - Orden de ejecución optimizado
 -- ============================================================
 
 -- Crear base de datos
@@ -27,6 +24,9 @@ IF OBJECT_ID('Paciente','U') IS NOT NULL DROP TABLE Paciente;
 IF OBJECT_ID('Usuario','U') IS NOT NULL DROP TABLE Usuario;
 IF OBJECT_ID('AuditoriaExpediente','U') IS NOT NULL DROP TABLE AuditoriaExpediente;
 IF OBJECT_ID('AuditoriaUsuario','U') IS NOT NULL DROP TABLE AuditoriaUsuario;
+IF OBJECT_ID('PacienteAlergia','U') IS NOT NULL DROP TABLE PacienteAlergia;
+IF OBJECT_ID('ExpedienteMedicamento','U') IS NOT NULL DROP TABLE ExpedienteMedicamento;
+IF OBJECT_ID('ExpedienteSintoma','U') IS NOT NULL DROP TABLE ExpedienteSintoma;
 GO
 
 -- Tabla Usuario
@@ -67,7 +67,7 @@ CREATE TABLE Expediente (
                     CONSTRAINT DF_Expediente_Estado DEFAULT 'En espera',
     Urgencia        INT           NOT NULL CONSTRAINT DF_Expediente_Urgencia DEFAULT 2
                     CONSTRAINT CK_Expediente_Urgencia CHECK (Urgencia BETWEEN 1 AND 3),
-    MotivoConsulta  NVARCHAR(255) NULL,
+    MotivoConsulta  NVARCHAR(255) NULL,    
     FechaCierre     DATETIME      NULL,
     CONSTRAINT FK_Expediente_Paciente  FOREIGN KEY (DNI)            REFERENCES Paciente(DNI),
     CONSTRAINT FK_Expediente_Usuario   FOREIGN KEY (CodigoEmpleado) REFERENCES Usuario(CodigoEmpleado)
@@ -86,6 +86,34 @@ CREATE TABLE Tratamiento (
     CONSTRAINT FK_Tratamiento_Usuario    FOREIGN KEY (CodigoEmpleado) REFERENCES Usuario(CodigoEmpleado)
 );
 GO
+
+CREATE TABLE PacienteAlergia (
+    IdAlergia   INT           NOT NULL IDENTITY(1,1) CONSTRAINT PK_PacienteAlergia PRIMARY KEY,
+    DNI         NVARCHAR(20)  NOT NULL,
+    Descripcion NVARCHAR(255) NOT NULL,
+    CONSTRAINT FK_PacienteAlergia_Paciente FOREIGN KEY (DNI) REFERENCES Paciente(DNI)
+        ON DELETE CASCADE  -- Si se elimina el paciente, se eliminan sus alergias
+);
+GO
+
+CREATE TABLE ExpedienteMedicamento (
+    IdMedicamento   INT           NOT NULL IDENTITY(1,1) CONSTRAINT PK_ExpedienteMedicamento PRIMARY KEY,
+    IdExpediente    INT           NOT NULL,
+    Medicamento     NVARCHAR(255) NOT NULL,
+    CONSTRAINT FK_ExpedienteMedicamento_Expediente
+        FOREIGN KEY (IdExpediente) REFERENCES Expediente(IdExpediente)
+        ON DELETE CASCADE
+);
+GO
+
+CREATE TABLE ExpedienteSintoma (
+    IdSintoma INT NOT NULL IDENTITY(1, 1) CONSTRAINT PK_ExpedienteSintoma PRIMARY KEY,
+    IdExpediente INT NOT NULL,
+    Sintoma NVARCHAR(255) NOT NULL,
+    CONSTRAINT FK_ExpedienteSintoma_Expediente
+        FOREIGN KEY (IdExpediente) REFERENCES Expediente(IdExpediente)
+        ON DELETE CASCADE
+);
 
 -- ============================================================
 -- SECCIÓN 2: TABLAS DE AUDITORÍA (ANTES DE LAS VISTAS)
@@ -135,6 +163,15 @@ CREATE INDEX IX_Tratamiento_Medico ON Tratamiento(CodigoEmpleado);
 GO
 
 CREATE INDEX IX_Paciente_Nombre ON Paciente(Nombre, Apellido);
+GO
+
+CREATE INDEX IX_PacienteAlergia_DNI ON PacienteAlergia(DNI);
+GO
+
+CREATE INDEX IX_ExpedienteMedicamento_Expediente ON ExpedienteMedicamento(IdExpediente);
+GO
+
+CREATE INDEX IX_ExpedienteSintoma_Expediente ON ExpedienteSintoma(IdExpediente);
 GO
 
 -- ============================================================
@@ -250,13 +287,18 @@ CREATE OR ALTER PROCEDURE sp_RegistrarPaciente
     @Sexo            NVARCHAR(1)   = NULL,
     @Direccion       NVARCHAR(255) = NULL,
     @Telefono        NVARCHAR(20)  = NULL,
-    @Email           NVARCHAR(100) = NULL
+    @Email           NVARCHAR(100) = NULL,
+    -- Alergias como string delimitado por '|'
+    -- Ejemplo: 'Penicilina|Aspirina|Mariscos'
+    -- NULL o cadena vacía = sin alergias
+    @Alergias        NVARCHAR(MAX) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
         BEGIN TRANSACTION;
 
+        -- Validación: DNI duplicado
         IF EXISTS (SELECT 1 FROM Paciente WHERE DNI = @DNI)
         BEGIN
             RAISERROR('Paciente ya registrado con DNI: %s', 16, 1, @DNI);
@@ -264,11 +306,29 @@ BEGIN
             RETURN;
         END
 
+        -- Insertar paciente
         INSERT INTO Paciente (DNI, Nombre, Apellido, FechaNacimiento, Sexo, Direccion, Telefono, Email)
         VALUES (@DNI, @Nombre, @Apellido, @FechaNacimiento, @Sexo, @Direccion, @Telefono, @Email);
 
+        -- Insertar alergias de forma atómica (en la misma transacción)
+        -- STRING_SPLIT disponible en SQL Server 2016+
+        IF @Alergias IS NOT NULL AND LEN(TRIM(@Alergias)) > 0
+        BEGIN
+            INSERT INTO PacienteAlergia (DNI, Descripcion)
+            SELECT @DNI, TRIM(value)
+            FROM STRING_SPLIT(@Alergias, '|')
+            WHERE LEN(TRIM(value)) > 0
+              -- Evitar duplicados si el SP se llama varias veces
+              AND NOT EXISTS (
+                  SELECT 1 FROM PacienteAlergia
+                  WHERE DNI = @DNI
+                    AND Descripcion = TRIM(value)
+              );
+        END
+
         COMMIT TRANSACTION;
         SELECT @DNI AS DNI, 'Paciente registrado exitosamente' AS Mensaje;
+
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
@@ -282,13 +342,22 @@ CREATE OR ALTER PROCEDURE sp_RegistrarExpediente
     @DNI            NVARCHAR(20),
     @CodigoEmpleado NVARCHAR(20),
     @MotivoConsulta NVARCHAR(255),
-    @Urgencia       INT = 2
+    @Urgencia       INT           = 2,
+    -- Síntomas como string delimitado por '|'
+    -- Ejemplo: 'Cefalea pulsátil|Fotofobia|Náuseas'
+    -- NULL o vacío = sin síntomas registrados
+    @Sintomas       NVARCHAR(MAX) = NULL,
+    -- Medicamentos actuales del paciente, delimitado por '|'
+    -- Ejemplo: 'Metformina 500mg|Enalapril 10mg'
+    -- NULL o vacío = sin medicamentos
+    @Medicamentos   NVARCHAR(MAX) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
         BEGIN TRANSACTION;
 
+        -- Validación: paciente existe
         IF NOT EXISTS (SELECT 1 FROM Paciente WHERE DNI = @DNI)
         BEGIN
             RAISERROR('Paciente no encontrado con DNI: %s', 16, 1, @DNI);
@@ -296,18 +365,49 @@ BEGIN
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM Usuario WHERE CodigoEmpleado = @CodigoEmpleado AND Activo = 1)
+        -- Validación: empleado activo
+        IF NOT EXISTS (
+            SELECT 1 FROM Usuario
+            WHERE CodigoEmpleado = @CodigoEmpleado
+              AND Activo = 1
+        )
         BEGIN
-            RAISERROR('Empleado no encontrado o inactivo', 16, 1);
+            RAISERROR('Empleado no encontrado o inactivo: %s', 16, 1, @CodigoEmpleado);
             ROLLBACK TRANSACTION;
             RETURN;
         END
 
+        -- Insertar expediente y capturar el ID generado
+        DECLARE @IdExpediente INT;
+
         INSERT INTO Expediente (DNI, CodigoEmpleado, MotivoConsulta, Urgencia)
         VALUES (@DNI, @CodigoEmpleado, @MotivoConsulta, @Urgencia);
 
+        SET @IdExpediente = SCOPE_IDENTITY();
+
+        -- Insertar síntomas en ExpedienteSintoma (tabla normalizada)
+        IF @Sintomas IS NOT NULL AND LEN(TRIM(@Sintomas)) > 0
+        BEGIN
+            INSERT INTO ExpedienteSintoma (IdExpediente, Sintoma)
+            SELECT @IdExpediente, TRIM(value)
+            FROM STRING_SPLIT(@Sintomas, '|')
+            WHERE LEN(TRIM(value)) > 0;
+        END
+
+        -- Insertar medicamentos en ExpedienteMedicamento (tabla normalizada)
+        IF @Medicamentos IS NOT NULL AND LEN(TRIM(@Medicamentos)) > 0
+        BEGIN
+            INSERT INTO ExpedienteMedicamento (IdExpediente, Medicamento)
+            SELECT @IdExpediente, TRIM(value)
+            FROM STRING_SPLIT(@Medicamentos, '|')
+            WHERE LEN(TRIM(value)) > 0;
+        END
+
         COMMIT TRANSACTION;
-        SELECT SCOPE_IDENTITY() AS IdExpediente, 'Expediente registrado exitosamente' AS Mensaje;
+        SELECT
+            @IdExpediente AS IdExpediente,
+            'Expediente registrado exitosamente' AS Mensaje;
+
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
