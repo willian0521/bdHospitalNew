@@ -26,7 +26,7 @@ Sistema de gestión hospitalaria con roles de usuario: Administrador, Médico y 
 
 2. Configurar BD en SQL Server:
    - Crear BD `bdHospital`.
-   - Ejecutar el script en `database_schema.txt` en SSMS.
+   - Ejecutar el script en `database_schema.sql` en SSMS.
 
 3. Configurar conexión en `backend/.env`:
    ```
